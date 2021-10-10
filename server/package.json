@@ -1,0 +1,50 @@
+{
+  "dependencies": {
+    "@socket.io/postgres-adapter": "^0.1.1",
+    "@types/argon2": "^0.15.0",
+    "@types/body-parser": "^1.19.1",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express-session": "^1.17.4",
+    "@types/ioredis": "^4.27.4",
+    "@types/node-pg-migrate": "^2.3.1",
+    "@types/react": "^17.0.26",
+    "@types/react-dom": "^17.0.9",
+    "argon2": "^0.28.2",
+    "body-parser": "^1.19.0",
+    "connect-redis": "^6.0.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^10.0.0",
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "ioredis": "^4.27.9",
+    "next": "^11.1.2",
+    "node-pg-migrate": "^6.0.0",
+    "pg": "^8.7.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "redis": "^3.1.2",
+    "reflect-metadata": "^0.1.13",
+    "socket.io": "^4.2.0",
+    "typeorm": "^0.2.37",
+    "typescript": "^4.4.3"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/pg": "^8.6.1",
+    "nodemon": "^2.0.12"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "dev": "nodemon dist/index.js",
+    "start": "node dist/index.js",
+    "migrate": "node-pg-migrate"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
