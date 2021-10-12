@@ -35,5 +35,5 @@ export const createRoom = async (conn:Connection, values:any, userId:number) => 
         await conn.manager.save(member_room);
     })
 
-    return true;
+    return rm;
 }

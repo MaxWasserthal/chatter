@@ -1,7 +1,8 @@
 import { Button } from '@chakra-ui/button'
-import { Box, Heading, ListItem, UnorderedList } from '@chakra-ui/layout'
+import { Box, Heading, Stack } from '@chakra-ui/layout'
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import {useQuery} from 'react-query'
 
 interface Room {
     id: number;
@@ -13,33 +14,25 @@ interface Room {
 
 export default function Sidebar() {
 
-    const [rooms, setRooms] = useState<Room[]>([])
-
-    const getRooms = async () => {
-        axios.get<Room[]>('http://localhost:3001/rooms', {
+    const fetchRooms = async () => {
+        const {data} = await axios.get<Room[]>('http://localhost:3001/rooms', {
             withCredentials: true,
-        })
-        .then((response) => {
-            setRooms(response.data)
-        })
+        })    
+        return data
     }
 
-    if(rooms.length === 0) {
-        getRooms();
-    }
-
-    useEffect(() => {}, [rooms])
+    const { data } = useQuery('fetchRooms', fetchRooms)
 
     return (
-        <Box p={5} w="15%" pos="fixed">
+        <Box p={5} w="15%" pos="fixed" h={"75%"}>
             <Heading size="lg" mb={5}>Rooms</Heading>
-            <UnorderedList styleType={'none'} m={0}>
-            {rooms.length > 0 ? rooms.map((room) => {
-                return <ListItem mb={3} p={0} key={room.id}>
+            <Stack spacing={3} h={"100%"} px={3} overflowY={"scroll"} position={"absolute"}>
+            {data ? data.map((room) => {
+                return <Box key={room.id}>
                         <Button w={40}>{room.title}</Button>
-                    </ListItem>
+                    </Box>
             }) : null }
-            </UnorderedList>
+            </Stack>
         </Box>
     )
 }

@@ -99,11 +99,12 @@ const main = async () => {
     })
 
     app.post("/create-room", async (req,res) => {
-        const result = await createRoom(pool, req.body.values, req.session.userId as number)
-        result ? res.sendStatus(200) : res.sendStatus(500);
+        const room = await createRoom(pool, req.body.values, req.session.userId as number)
+        room ? res.send(room) : res.sendStatus(500);
     })
 
     app.get("/me", async (req,res) => {
+        console.log("req",req)
         const username = await me(pool, req)
         res.send(username);
     })

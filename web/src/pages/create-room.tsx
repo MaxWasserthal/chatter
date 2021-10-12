@@ -6,9 +6,10 @@ import router from 'next/router';
 import React from 'react';
 import { InputField } from '../components/InputField';
 import { Wrapper } from '../components/Wrapper';
-import { useState, useEffect } from 'react';
 import CustomSelect from '../components/CustomSelect';
 import { CustomCheckbox } from '../components/CustomCheckbox';
+import { useQuery, useQueryClient } from 'react-query';
+import { useIsAuth } from '../utils/useIsAuth';
 
 interface Member {
     id: number;
@@ -17,56 +18,32 @@ interface Member {
 
 const CreateRoom:React.FC<{}> = () => {
 
-    const [me, setMe] = useState();
-    const [members, setMembers] = useState<Member[]>([]);
+    useIsAuth()
 
-    const getUsername = () => {
-        axios.get('http://localhost:3001/me', {
-            withCredentials: true,
-        })
-        .then((response) => {
-            setMe(response.data);
-          });
-    }
+    const queryClient = useQueryClient()
 
     const createRoom = async (values:any) => {
         axios.post('http://localhost:3001/create-room', {values}, {
               withCredentials: true,
           })
-          .then(() => {
-            router.replace("/")
-          })
-          .catch((err:any) => {
-            console.log(err);
-          });
     }
 
-    const getMembers = async () => {
-        axios.get<Member[]>('http://localhost:3001/members', {
+    const fetchMembers = async () => {
+        const {data} = await axios.get<Member[]>('http://localhost:3001/members', {
             withCredentials: true,
-        })
-        .then((response) => {
-            setMembers(response.data);
-        })
+        })    
+        return data
     }
 
-    useEffect(() => {}, [members])
-
-    if(!me) {
-        getUsername();
-    }
-
-    if(members.length === 0 && me) {
-        getMembers();
-    }
+    const { data:members } = useQuery('fetchMembers', fetchMembers)
 
     return (
         <Wrapper>
             <Formik
                 initialValues={{title: '', publ: true, members: [] as Member[]}}
                 onSubmit={async (values) => {
-                    console.log(values)
                     await createRoom(values);
+                    queryClient.invalidateQueries('fetchRooms')
                     router.push("/")
                 }}
                 >
@@ -76,7 +53,7 @@ const CreateRoom:React.FC<{}> = () => {
                     <Box mt={4}>
                         <CustomCheckbox name="publ" label="Public">Public</CustomCheckbox>
                     </Box>
-                    {members.length > 0 ?
+                    {members ?
                     <Box mt={4}>
                         <CustomSelect name="members" label="Members">
                             {members.map((member) => (
