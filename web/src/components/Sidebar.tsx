@@ -24,9 +24,9 @@ export default function Sidebar() {
     const { data } = useQuery('fetchRooms', fetchRooms)
 
     return (
-        <Box p={5} w="15%" pos="fixed" h={"75%"}>
+        <Box px={5} w={"min-content"} h={"75%"} display={"flex"} flex={1} flexDirection={'column'} flexBasis={'20%'}>
             <Heading size="lg" mb={5}>Rooms</Heading>
-            <Stack spacing={3} h={"100%"} px={3} overflowY={"scroll"} position={"absolute"}>
+            <Stack spacing={3} maxH={"520px"} px={3} overflowY={"scroll"} w={"min-content"}>
             {data ? data.map((room) => {
                 return <Box key={room.id}>
                         <Button w={40}>{room.title}</Button>

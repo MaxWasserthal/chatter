@@ -3,7 +3,6 @@ import NextLink from 'next/link';
 import { Box, Flex, Heading, Link } from '@chakra-ui/layout';
 import { Button, IconButton } from '@chakra-ui/button';
 import { useRouter } from 'next/router';
-import Sidebar from './Sidebar';
 import axios from 'axios';
 import { useColorMode } from '@chakra-ui/color-mode';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
@@ -30,9 +29,9 @@ export const NavBar: React.FC<{}> = () => {
         return data
     }
 
-    const { data } = useQuery('fetchMe', fetchMe)
+    const { data:me } = useQuery('fetchMe', fetchMe)
 
-    if(data) {
+    if(me) {
         content = (
             <Flex align="center">
                 <IconButton
@@ -43,7 +42,7 @@ export const NavBar: React.FC<{}> = () => {
                 <NextLink href="/create-room">
                     <Button as={Link} mr={2} alignSelf="center">create room</Button>
                 </NextLink>
-                <Box m={3}>{data}</Box>
+                <Box m={3}>{me}</Box>
                 <Button onClick={async () => {
                     await logout();
                 }}
@@ -70,7 +69,7 @@ export const NavBar: React.FC<{}> = () => {
 
     return (
         <>
-            <Flex zIndex={1} position="sticky" top={0} bg="teal" p={4}>
+            <Flex zIndex={1} position="sticky" top={0} bg="teal" p={4} w='100%'>
                 <Flex m="auto" flex={1} align="center" maxW={800}>
                     <NextLink href="/">
                         <Link>
@@ -82,7 +81,6 @@ export const NavBar: React.FC<{}> = () => {
                     </Box>
                 </Flex>
             </Flex>
-            {data ? <Sidebar/> : null }
         </>
     )
 }

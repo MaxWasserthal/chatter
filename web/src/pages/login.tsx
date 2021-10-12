@@ -4,9 +4,9 @@ import { Box, Flex, Link } from '@chakra-ui/layout';
 import { InputField } from '../components/InputField';
 import { Button } from '@chakra-ui/button';
 import NextLink from 'next/link';
-import { Wrapper } from '../components/Wrapper';
 import router from 'next/router';
 import axios from 'axios';
+import { FormWrapper } from '../components/FormWrapper';
 
 const Login:React.FC<{}> = () => {
 
@@ -23,7 +23,7 @@ const Login:React.FC<{}> = () => {
     }
 
     return (
-        <Wrapper>
+        <FormWrapper>
             <Formik
                 initialValues={{email: '', username: '', password: ''}}
                 onSubmit={async (values) => {
@@ -46,7 +46,7 @@ const Login:React.FC<{}> = () => {
                 </Form>
                 )}
             </Formik>
-        </Wrapper>
+        </FormWrapper>
     )
 }
 export default Login;

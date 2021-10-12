@@ -5,11 +5,11 @@ import { Formik, Form } from 'formik';
 import router from 'next/router';
 import React from 'react';
 import { InputField } from '../components/InputField';
-import { Wrapper } from '../components/Wrapper';
 import CustomSelect from '../components/CustomSelect';
 import { CustomCheckbox } from '../components/CustomCheckbox';
 import { useQuery, useQueryClient } from 'react-query';
 import { useIsAuth } from '../utils/useIsAuth';
+import { FormWrapper } from '../components/FormWrapper';
 
 interface Member {
     id: number;
@@ -38,7 +38,7 @@ const CreateRoom:React.FC<{}> = () => {
     const { data:members } = useQuery('fetchMembers', fetchMembers)
 
     return (
-        <Wrapper>
+        <FormWrapper>
             <Formik
                 initialValues={{title: '', publ: true, members: [] as Member[]}}
                 onSubmit={async (values) => {
@@ -48,7 +48,7 @@ const CreateRoom:React.FC<{}> = () => {
                 }}
                 >
                 {({isSubmitting}) => (
-                    <Form>
+                <Form>
                     <InputField name="title" placeholder="title" label="Title" />
                     <Box mt={4}>
                         <CustomCheckbox name="publ" label="Public">Public</CustomCheckbox>
@@ -68,7 +68,7 @@ const CreateRoom:React.FC<{}> = () => {
                 </Form>
                 )}
             </Formik>
-        </Wrapper>
+        </FormWrapper>
     )
 }
 
