@@ -46,7 +46,7 @@ export const NavBar: React.FC<{}> = () => {
                 <Button onClick={async () => {
                     await logout();
                 }}
-                variant="link">Logout</Button>
+                variant="link" color={'#fff'}>Logout</Button>
             </Flex>
         )
     } else {

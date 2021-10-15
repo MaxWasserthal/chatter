@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }: AppProps):any {
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <SocketContext.Provider value={socket}>
           <Component {...pageProps} />
-          </SocketContext.Provider>
+        </SocketContext.Provider>
       </ChakraProvider>
     </QueryClientProvider>
   )

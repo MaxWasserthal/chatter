@@ -9,7 +9,7 @@ export class Message extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column("text")
     content: string;
 
     @CreateDateColumn()

@@ -22,6 +22,8 @@ import { logout } from "./utils/logout";
 import { rooms } from "./utils/rooms";
 import { members } from './utils/members';
 import { MemberRoom } from "./entities/MemberRoom";
+import { messages } from "./utils/messages";
+import { sendMessage } from "./utils/send-message";
 
 const main = async () => {
 
@@ -104,7 +106,6 @@ const main = async () => {
     })
 
     app.get("/me", async (req,res) => {
-        console.log("req",req)
         const username = await me(pool, req)
         res.send(username);
     })
@@ -120,8 +121,18 @@ const main = async () => {
     })
 
     app.get("/members", async (req,res) => {
-        const mems = await members(req);
+        const mems = await members(req)
         res.send(mems);
+    })
+
+    app.get("/messages", async (req,res) => {
+        const mess = await messages(req.query.roomId as string)
+        res.send(mess)
+    })
+
+    app.post("/messages", async (req,res) => {
+        const mes = await sendMessage(pool, req)
+        res.send(mes)
     })
 
     app.use(cookieParser)
@@ -129,25 +140,6 @@ const main = async () => {
     // io.on('connection', (defaultSocket:SessionSocket) => {
         
     //     const socket = defaultSocket;
-    //     socket.on('setId', () => {
-    //         socket.request.session.userId = 10
-    //     })
-
-    //     socket.on('logId', () => {
-    //         console.log("userid",socket.request.session.userId)
-    //     })
-
-    //     socket.on('login', (values) => {
-    //         console.log(values)
-    //         socket.request.session.userId = parseInt(values.usernameOrEmail)
-    //         console.log("userid",socket.request.session.userId)
-    //         socket.emit('loginresponse', ("Success"))
-    //     })
-
-    //     socket.on('register', (values) => {
-    //         console.log(values)
-    //         socket.emit('registerSuccess', ("hello friend"))
-    //     })
 
     //     socket.on('disconnect', async () => {
     //         console.log(`${socket.id} just disconnected`)
