@@ -29,7 +29,7 @@ export default function Home() {
             <RoomContext.Provider value={{currRoom, setRoom}}>
             <Flex w={"100%"}>
                 {me ? <Sidebar/> : null }
-                <ChatMessages/>
+                {me ? <ChatMessages/> : null}
             </Flex>
             </RoomContext.Provider>
         </Layout>

@@ -1,11 +1,15 @@
 import { Box, Flex, Stack, Text } from '@chakra-ui/layout'
 import axios from 'axios'
-import React, { useContext, useEffect, useCallback } from 'react'
+import React, { useContext, useEffect, useCallback, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import roomContext from '../context/room'
 import { Formik,Form } from 'formik'
-import { Button } from '@chakra-ui/button'
+import { Button, IconButton } from '@chakra-ui/button'
 import { InputField } from './InputField'
+import { useDisclosure } from '@chakra-ui/hooks'
+import { Drawer } from "@chakra-ui/react"
+import { ChatIcon } from '@chakra-ui/icons'
+import { DrawerContents } from './DrawerContents'
 
 interface Member {
     id: number;
@@ -17,6 +21,7 @@ interface Message {
     content: String;
     creator: Member;
     room: number;
+    createdAt: Date;
 }
 
 export default function ChatMessages() {
@@ -60,8 +65,26 @@ export default function ChatMessages() {
 
     const { data:messages } = useQuery(['fetchMessages', currRoom], fetchMessages)
 
+    const { onOpen, onClose } = useDisclosure()
+    const btnRef = useRef<HTMLButtonElement>(null)
+
+    const [open, setOpen] = useState({
+        messageId: 0,
+        opened: false,
+    })
+
     useEffect(() => {
     }, [currRoom, messages])
+
+    const opening = (id:number) => {
+        onOpen();
+        setOpen({messageId: id, opened: true})
+    }
+
+    const closing = (id:number) => {
+        onClose();
+        setOpen({messageId: id, opened: false})
+    }
 
     return (
         <Box display={'flex'} flex={1} flexDirection={'column'} flexBasis={"80%"} pl={"2%"}>
@@ -75,8 +98,17 @@ export default function ChatMessages() {
                         w={"100%"}
                         key={message.id}
                         ref={message.id === messages[messages.length-1].id ? setRef : null}>
+                            <Box display={"flex"} pb={1}>
+                                <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{message.creator.username}</Text>
+                                <Text fontSize="xs" lineHeight={"25px"}>{message.createdAt.toString().split("T")[1].split(".")[0]}</Text>
+                            </Box>
                             <Text p={2} borderRadius={5} color={"#fff"} bg={message.creator.username === me ? 'teal' : 'grey'}>{message.content}</Text>
-                            <Text fontSize="xs">{message.creator.username}</Text>
+                            <IconButton aria-label={"Respond"} ref={btnRef} onClick={() => opening(message.id)} display={'flex'} icon={<ChatIcon/>}/>
+                            {open.opened && open.messageId === message.id ?
+                                <Drawer isOpen={open.opened} placement={"right"} onClose={() => closing(message.id)} finalFocusRef={btnRef}>
+                                <DrawerContents messageId={message.id} roomId={currRoom}/>
+                                </Drawer>
+                            : null}
                         </Box>
                     )
                 }) : null }

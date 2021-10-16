@@ -24,6 +24,8 @@ import { members } from './utils/members';
 import { MemberRoom } from "./entities/MemberRoom";
 import { messages } from "./utils/messages";
 import { sendMessage } from "./utils/send-message";
+import { responses } from "./utils/responses";
+import { sendResponse } from "./utils/send-response";
 
 const main = async () => {
 
@@ -133,6 +135,16 @@ const main = async () => {
     app.post("/messages", async (req,res) => {
         const mes = await sendMessage(pool, req)
         res.send(mes)
+    })
+
+    app.get("/responses", async (req,res) => {
+        const resp = await responses(req)
+        res.send(resp)
+    })
+
+    app.post("/responses", async (req,res) => {
+        const resp = await sendResponse(pool, req)
+        res.send(resp);
     })
 
     app.use(cookieParser)

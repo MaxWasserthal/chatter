@@ -8,6 +8,7 @@ export const messages = async (roomId:string) => {
         .select("message")
         .leftJoinAndSelect("message.creator", "member")
         .where("message.room.id = :id", { id: roomId })
+        .andWhere("message.responseId isnull")
         .orderBy("message.createdAt")
         .getMany();
 

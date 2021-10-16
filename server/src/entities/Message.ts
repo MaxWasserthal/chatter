@@ -28,9 +28,6 @@ export class Message extends BaseEntity {
     reaction: Reaction[];
 
     //response to other message
-    @OneToMany(() => Message, message => message.responses)
-    message: Message[];
-
-    @ManyToOne(() => Message, message => message.message)
-    responses: Message;
+    @ManyToOne(() => Message, message => message.id)
+    response?: number;
 }

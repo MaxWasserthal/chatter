@@ -6,6 +6,8 @@ import { Room } from '../entities/Room';
 
 export const sendMessage = async (conn:Connection, req:Request) => {
 
+    console.log(req.body.message.content)
+
     const userId = req.session.userId;
     const roomId = req.query.roomId;
 
