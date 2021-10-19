@@ -11,17 +11,13 @@ import { Drawer } from "@chakra-ui/react"
 import { ChatIcon } from '@chakra-ui/icons'
 import { DrawerContents } from './DrawerContents'
 
-interface Member {
-    id: number;
-    username: string;
-}
-
 interface Message {
-    id: number;
-    content: String;
-    creator: Member;
-    room: number;
-    createdAt: Date;
+    message_id: number;
+    message_content: String;
+    member_username: String;
+    message_roomId: number;
+    message_createdAt: Date;
+    responseCount: String;
 }
 
 export default function ChatMessages() {
@@ -87,48 +83,66 @@ export default function ChatMessages() {
     }
 
     return (
-        <Box display={'flex'} flex={1} flexDirection={'column'} flexBasis={"80%"} pl={"2%"}>
-            <Stack px={5} overflowY={"scroll"} h={"470px"}>
+        <Box display={'flex'} flex={1} flexDirection={'column'} flexBasis={"80%"} pl={"2%"}
+        position={"absolute"} right={0} width={"85%"}>
+            <Stack px={5} overflowY={"scroll"} h={"70vh"}>
                 {messages ? messages.map((message) => {
                     return (
                         <Box
-                        display={'flex'}
-                        flexDirection={'column'}
-                        alignItems={message.creator.username === me ? 'flex-end' : 'flex-start'}
+                        display={'flex'} flexDirection={'column'}
+                        alignItems={message.member_username === me ? 'flex-end' : 'flex-start'}
                         w={"100%"}
-                        key={message.id}
-                        ref={message.id === messages[messages.length-1].id ? setRef : null}>
+                        key={message.message_id}
+                        ref={message.message_id === messages[messages.length-1].message_id ? setRef : null}>
                             <Box display={"flex"} pb={1}>
-                                <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{message.creator.username}</Text>
-                                <Text fontSize="xs" lineHeight={"25px"}>{message.createdAt.toString().split("T")[1].split(".")[0]}</Text>
+                                <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{message.member_username}</Text>
+                                <Text fontSize="xs" lineHeight={"25px"}>{message.message_createdAt.toString().split("T")[1].split(".")[0]}</Text>
                             </Box>
-                            <Text p={2} borderRadius={5} color={"#fff"} bg={message.creator.username === me ? 'teal' : 'grey'}>{message.content}</Text>
-                            <IconButton aria-label={"Respond"} ref={btnRef} onClick={() => opening(message.id)} display={'flex'} icon={<ChatIcon/>}/>
-                            {open.opened && open.messageId === message.id ?
-                                <Drawer isOpen={open.opened} placement={"right"} onClose={() => closing(message.id)} finalFocusRef={btnRef}>
-                                <DrawerContents messageId={message.id} roomId={currRoom}/>
+                            <Box p={2} borderRadius={5} color={"#fff"} bg={message.member_username === me ? 'teal' : 'grey'}>
+                                {message.message_content.split("\n").map((line, idx) => {
+                                    return (
+                                        <Text key={idx}>{line}</Text>
+                                    )
+                                })}
+                            </Box>
+                            {parseInt(message.responseCount as string) > 0 ?
+                                <Button aria-label={"Respond"} borderRadius={0} display={'flex'}
+                                ref={btnRef}
+                                onClick={() => opening(message.message_id)} rightIcon={<ChatIcon/>}>
+                                    {message.responseCount} responses
+                                </Button>
+                            : null }
+                            {open.opened && open.messageId === message.message_id ?
+                                <Drawer isOpen={open.opened} placement={"right"}
+                                finalFocusRef={btnRef}
+                                onClose={() => closing(message.message_id)}>
+                                    <DrawerContents messageId={message.message_id} roomId={currRoom}/>
                                 </Drawer>
                             : null}
                         </Box>
                     )
                 }) : null }
             </Stack>
-            <Formik
-                initialValues={{content: ''}}
-                onSubmit={async (values, {resetForm}) => {
-                    await sendMessage(values)
-                    await queryClient.invalidateQueries('fetchMessages')
-                    resetForm()
-                }}>
-                {({isSubmitting}) => (
-                    <Form>
-                        <Flex bottom={0} pos={"absolute"} w={"80%"}>
-                            <InputField textarea={true} name="content" placeholder={"write something"}/>
-                            <Button type={"submit"} colorScheme={"teal"} isLoading={isSubmitting}>Send</Button>
-                        </Flex>
-                    </Form>
-                )}
-            </Formik>
+            <Box width={"97%"} mt={8}>
+                <Formik
+                    initialValues={{content: ''}}
+                    onSubmit={async (values, {resetForm}) => {
+                        if(values.content !== '') {
+                            await sendMessage(values)
+                            await queryClient.invalidateQueries('fetchMessages')
+                            resetForm()
+                        }
+                    }}>
+                    {({isSubmitting}) => (
+                        <Form>
+                            <Flex>
+                                <InputField textarea={true} name="content" placeholder={"write something"}/>
+                                <Button type={"submit"} colorScheme={"teal"} isLoading={isSubmitting}>Send</Button>
+                            </Flex>
+                        </Form>
+                    )}
+                </Formik>
+            </Box>
         </Box>
     )
 }

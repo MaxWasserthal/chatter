@@ -19,6 +19,7 @@
     "@types/react-query": "^1.2.9",
     "@types/react-select": "^4.0.18",
     "axios": "^0.22.0",
+    "emoji-picker-react": "^3.4.8",
     "express": "^4.17.1",
     "formik": "^2.2.9",
     "framer-motion": "4",

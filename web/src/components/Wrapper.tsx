@@ -3,7 +3,7 @@ import React from 'react'
 
 export const Wrapper: React.FC<{}> = ({children}) => {
     return (
-        <Box mt={8} mx='auto'>
+        <Box mx='auto'>
             {children}
         </Box>
     )

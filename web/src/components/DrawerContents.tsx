@@ -27,8 +27,6 @@ interface Props {
 
 export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
 
-    console.log("rendered contents")
-
     const queryClient = useQueryClient()
 
     const setRef = useCallback((node:any) => {
@@ -71,12 +69,19 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                         { responses ? responses.map((response) => {
                             return (
                                 <Box pb={3}
+                                key={response.id}
                                 ref={response.id === responses[responses.length-1].id ? setRef : null}>
-                                <Box key={response.id} display={"flex"}>
+                                <Box display={"flex"}>
                                     <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{response.creator.username}</Text>
                                     <Text fontSize="xs" lineHeight={"25px"}>{response.createdAt.toString().split("T")[1].split(".")[0]}</Text>
                                 </Box>
-                                <Text p={2} borderRadius={5} color={"#fff"} bg={'grey'}>{response.content}</Text>
+                                <Box p={2} borderRadius={5} color={"#fff"} bg={'teal'}>
+                                { response.content.split("\n").map((line, idx) => {
+                                    return (
+                                        <Text key={idx}>{line}</Text>
+                                    )
+                                })}
+                                </Box>
                                 </Box>
                             )
                             })
@@ -87,9 +92,11 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                     <Formik
                         initialValues={{content: ''}}
                         onSubmit={async (values, {resetForm}) => {
-                            await sendResponse(values)
-                            await queryClient.invalidateQueries('fetchResponses')
-                            resetForm()
+                            if(values.content !== '') {
+                                await sendResponse(values)
+                                await queryClient.invalidateQueries('fetchResponses')
+                                resetForm()
+                            }
                         }}>
                         {({isSubmitting}) => (
                             <Form>

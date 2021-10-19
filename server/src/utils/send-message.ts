@@ -6,8 +6,6 @@ import { Room } from '../entities/Room';
 
 export const sendMessage = async (conn:Connection, req:Request) => {
 
-    console.log(req.body.message.content)
-
     const userId = req.session.userId;
     const roomId = req.query.roomId;
 
@@ -20,7 +18,7 @@ export const sendMessage = async (conn:Connection, req:Request) => {
     const room = await rooms.findOne({ where: { id: roomId }})
 
     let message = new Message()
-    message.content = req.body.message.content;
+    message.content = req.body.message.content as string;
     message.creator = mem as Member;
     message.room = room as Room;
 
