@@ -1,5 +1,6 @@
 import { getRepository } from 'typeorm';
 import { Message } from '../entities/Message';
+import { Reaction } from '../entities/Reaction';
 
 export const messages = async (roomId:string) => {
 
@@ -13,6 +14,15 @@ export const messages = async (roomId:string) => {
                 .from(Message, 'r')
                 .where('r.responseId = message.id'),
             'responseCount',
+        )
+        .addSelect(
+            qb =>
+                qb
+                .select("array_agg(reac.emoji)")
+                .from(Reaction, 'reac')
+                .where('reac.reactionTo = message.id')
+                .groupBy('reac.reactionTo'),
+            'reactions',
         )
         .leftJoinAndSelect("message.creator", "member")
         .where("message.room.id = :id", { id: roomId })

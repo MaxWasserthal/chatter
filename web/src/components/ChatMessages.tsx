@@ -8,8 +8,11 @@ import { Button, IconButton } from '@chakra-ui/button'
 import { InputField } from './InputField'
 import { useDisclosure } from '@chakra-ui/hooks'
 import { Drawer } from "@chakra-ui/react"
-import { ChatIcon } from '@chakra-ui/icons'
+import { Modal } from "@chakra-ui/modal"
+import { ChatIcon, Icon } from '@chakra-ui/icons'
 import { DrawerContents } from './DrawerContents'
+import { BsEmojiLaughing } from 'react-icons/bs'
+import { EmojiModalContents } from './EmojiModalContents'
 
 interface Message {
     message_id: number;
@@ -18,6 +21,7 @@ interface Message {
     message_roomId: number;
     message_createdAt: Date;
     responseCount: String;
+    reactions: Array<String>;
 }
 
 export default function ChatMessages() {
@@ -59,12 +63,27 @@ export default function ChatMessages() {
         })
     }
 
+    // const fetchReactions = async () => {
+    //     const {data} = await axios.get('http://localhost:3001/responses', {
+    //         withCredentials: true,
+    //         params: {
+    //             roomId: currRoom,
+    //         }
+    //     })
+    //     return data
+    // }
+
     const { data:messages } = useQuery(['fetchMessages', currRoom], fetchMessages)
 
     const { onOpen, onClose } = useDisclosure()
     const btnRef = useRef<HTMLButtonElement>(null)
 
     const [open, setOpen] = useState({
+        messageId: 0,
+        opened: false,
+    })
+
+    const [openModal, setOpenModal] = useState({
         messageId: 0,
         opened: false,
     })
@@ -82,6 +101,16 @@ export default function ChatMessages() {
         setOpen({messageId: id, opened: false})
     }
 
+    const openingModal = (id:number) => {
+        onOpen();
+        setOpenModal({messageId: id, opened: true})
+    }
+
+    const closingModal = (id:number) => {
+        onClose()
+        setOpenModal({messageId: id, opened: false})
+    }
+
     return (
         <Box display={'flex'} flex={1} flexDirection={'column'} flexBasis={"80%"} pl={"2%"}
         position={"absolute"} right={0} width={"85%"}>
@@ -91,7 +120,7 @@ export default function ChatMessages() {
                         <Box
                         display={'flex'} flexDirection={'column'}
                         alignItems={message.member_username === me ? 'flex-end' : 'flex-start'}
-                        w={"100%"}
+                        w={"100%"} pb={2}
                         key={message.message_id}
                         ref={message.message_id === messages[messages.length-1].message_id ? setRef : null}>
                             <Box display={"flex"} pb={1}>
@@ -105,13 +134,30 @@ export default function ChatMessages() {
                                     )
                                 })}
                             </Box>
+                            <Flex my={1}>
+                                <IconButton aria-label={"React"} order={message.member_username === me ? 1 : 0}
+                                icon={<Icon as={BsEmojiLaughing}/>}
+                                onClick={() => openingModal(message.message_id)}/>
+                                {message.reactions ? message.reactions.map((reaction, idx) => {
+                                    return (<Text key={idx} fontSize={24}>{String.fromCodePoint(parseInt("0x"+reaction))}</Text>)
+                                }) : null }
+                            </Flex>
                             {parseInt(message.responseCount as string) > 0 ?
-                                <Button aria-label={"Respond"} borderRadius={0} display={'flex'}
-                                ref={btnRef}
-                                onClick={() => opening(message.message_id)} rightIcon={<ChatIcon/>}>
-                                    {message.responseCount} responses
-                                </Button>
-                            : null }
+                                    <Button aria-label={"Respond"} display={'flex'}
+                                    ref={btnRef}
+                                    onClick={() => opening(message.message_id)} rightIcon={<ChatIcon/>}>
+                                        {message.responseCount} responses
+                                    </Button>
+                                    :
+                                    <IconButton icon={<ChatIcon/>} aria-label={"Respond"} display={'flex'}
+                                    ref={btnRef}
+                                    onClick={() => opening(message.message_id)}/>
+                                }
+                                {openModal.opened && openModal.messageId === message.message_id ?
+                                <Modal isOpen={openModal.opened} onClose={() => closingModal(message.message_id)}>
+                                    <EmojiModalContents messageId={message.message_id}/>
+                                </Modal>
+                            : null}
                             {open.opened && open.messageId === message.message_id ?
                                 <Drawer isOpen={open.opened} placement={"right"}
                                 finalFocusRef={btnRef}

@@ -26,6 +26,7 @@ import { messages } from "./utils/messages";
 import { sendMessage } from "./utils/send-message";
 import { responses } from "./utils/responses";
 import { sendResponse } from "./utils/send-response";
+import { sendReaction } from "./utils/sendReaction";
 
 const main = async () => {
 
@@ -145,6 +146,11 @@ const main = async () => {
     app.post("/responses", async (req,res) => {
         const resp = await sendResponse(pool, req)
         res.send(resp);
+    })
+
+    app.post("/reactions", async (req,res) => {
+        const reaction = await sendReaction(pool,req)
+        res.send(reaction)
     })
 
     app.use(cookieParser)

@@ -95,6 +95,7 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                             if(values.content !== '') {
                                 await sendResponse(values)
                                 await queryClient.invalidateQueries('fetchResponses')
+                                await queryClient.invalidateQueries('fetchMessages')
                                 resetForm()
                             }
                         }}>
