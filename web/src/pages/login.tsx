@@ -17,9 +17,6 @@ const Login:React.FC<{}> = () => {
           .then(() => {
             router.replace("/")
           })
-          .catch((err:any) => {
-            console.log(err);
-          });
     }
 
     return (

@@ -18,7 +18,7 @@ export default function Home() {
 
     const { data:me } = useQuery('fetchMe', fetchMe)
 
-    const [currRoom, setCurrRoom] = useState(1);
+    const [currRoom, setCurrRoom] = useState(1)
 
     const setRoom = (roomId:number) => {
         setCurrRoom(roomId)

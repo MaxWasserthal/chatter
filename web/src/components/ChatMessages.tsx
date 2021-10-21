@@ -13,6 +13,8 @@ import { ChatIcon, Icon } from '@chakra-ui/icons'
 import { DrawerContents } from './DrawerContents'
 import { BsEmojiLaughing } from 'react-icons/bs'
 import { EmojiModalContents } from './EmojiModalContents'
+import { ChatHeader } from './ChatHeader'
+import { Tooltip } from '@chakra-ui/tooltip'
 
 interface Message {
     message_id: number;
@@ -63,16 +65,6 @@ export default function ChatMessages() {
         })
     }
 
-    // const fetchReactions = async () => {
-    //     const {data} = await axios.get('http://localhost:3001/responses', {
-    //         withCredentials: true,
-    //         params: {
-    //             roomId: currRoom,
-    //         }
-    //     })
-    //     return data
-    // }
-
     const { data:messages } = useQuery(['fetchMessages', currRoom], fetchMessages)
 
     const { onOpen, onClose } = useDisclosure()
@@ -114,12 +106,14 @@ export default function ChatMessages() {
     return (
         <Box display={'flex'} flex={1} flexDirection={'column'} flexBasis={"80%"} pl={"2%"}
         position={"absolute"} right={0} width={"85%"}>
-            <Stack px={5} overflowY={"scroll"} h={"70vh"}>
+            {me ? <ChatHeader roomId={currRoom} username={me}/> : null }
+            <Stack px={5} overflowY={"scroll"} h={"63vh"}>
                 {messages ? messages.map((message) => {
+                    let mebool = message.member_username === me;
                     return (
                         <Box
                         display={'flex'} flexDirection={'column'}
-                        alignItems={message.member_username === me ? 'flex-end' : 'flex-start'}
+                        alignItems={mebool ? 'flex-end' : 'flex-start'}
                         w={"100%"} pb={2}
                         key={message.message_id}
                         ref={message.message_id === messages[messages.length-1].message_id ? setRef : null}>
@@ -127,7 +121,7 @@ export default function ChatMessages() {
                                 <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{message.member_username}</Text>
                                 <Text fontSize="xs" lineHeight={"25px"}>{message.message_createdAt.toString().split("T")[1].split(".")[0]}</Text>
                             </Box>
-                            <Box p={2} borderRadius={5} color={"#fff"} bg={message.member_username === me ? 'teal' : 'grey'}>
+                            <Box p={2} borderRadius={5} color={"#fff"} bg={mebool ? 'teal' : 'grey'}>
                                 {message.message_content.split("\n").map((line, idx) => {
                                     return (
                                         <Text key={idx}>{line}</Text>
@@ -135,23 +129,29 @@ export default function ChatMessages() {
                                 })}
                             </Box>
                             <Flex my={1}>
-                                <IconButton aria-label={"React"} order={message.member_username === me ? 1 : 0}
-                                icon={<Icon as={BsEmojiLaughing}/>}
-                                onClick={() => openingModal(message.message_id)}/>
+                                <Tooltip label={"React"} placement={"top"} openDelay={500}>
+                                    <IconButton aria-label={"React"} mr={message.reactions ? 1 : 0} order={mebool === me ? 1 : 0}
+                                    icon={<Icon as={BsEmojiLaughing}/>}
+                                    onClick={() => openingModal(message.message_id)}/>
+                                </Tooltip>
                                 {message.reactions ? message.reactions.map((reaction, idx) => {
-                                    return (<Text key={idx} fontSize={24}>{String.fromCodePoint(parseInt("0x"+reaction))}</Text>)
+                                    return (<Button key={idx} fontSize={20} w={10} h={10}>{String.fromCodePoint(parseInt("0x"+reaction))}</Button>)
                                 }) : null }
                             </Flex>
                             {parseInt(message.responseCount as string) > 0 ?
-                                    <Button aria-label={"Respond"} display={'flex'}
-                                    ref={btnRef}
-                                    onClick={() => opening(message.message_id)} rightIcon={<ChatIcon/>}>
-                                        {message.responseCount} responses
-                                    </Button>
+                                    <Tooltip label={"Respond"} placement={"bottom"} openDelay={500}>
+                                        <Button aria-label={"Respond"} display={'flex'}
+                                        ref={btnRef}
+                                        onClick={() => opening(message.message_id)} rightIcon={<ChatIcon/>}>
+                                            {message.responseCount} responses
+                                        </Button>
+                                    </Tooltip>
                                     :
-                                    <IconButton icon={<ChatIcon/>} aria-label={"Respond"} display={'flex'}
-                                    ref={btnRef}
-                                    onClick={() => opening(message.message_id)}/>
+                                    <Tooltip label={"Respond"} placement={"bottom"} openDelay={500}>
+                                        <IconButton icon={<ChatIcon/>} aria-label={"Respond"} display={'flex'}
+                                        ref={btnRef}
+                                        onClick={() => opening(message.message_id)}/>
+                                    </Tooltip>
                                 }
                                 {openModal.opened && openModal.messageId === message.message_id ?
                                 <Modal isOpen={openModal.opened} onClose={() => closingModal(message.message_id)}>

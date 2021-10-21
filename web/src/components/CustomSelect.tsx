@@ -19,7 +19,7 @@ function CustomSelect({ label, ...props }:any) {
     <FormControl>
       <FormLabel htmlFor={field.name}>{label}</FormLabel>
       <Select
-        defaultValue={options.find((option:any) => option.value === field.value)}
+        defaultValue={options.filter((option:any) => field.value.includes(option.value))}
         options={options}
         onChange={onChange}
         isMulti={true}

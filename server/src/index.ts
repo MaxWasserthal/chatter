@@ -15,7 +15,7 @@ import path from 'path';
 import { createConnection } from 'typeorm';
 import { register } from "./utils/register";
 import { login } from "./utils/login";
-import { createRoom } from "./utils/create-room";
+import { createRoom } from "./utils/createRoom";
 import { COOKIE_NAME } from "./constants";
 import { me } from "./utils/me";
 import { logout } from "./utils/logout";
@@ -23,10 +23,13 @@ import { rooms } from "./utils/rooms";
 import { members } from './utils/members';
 import { MemberRoom } from "./entities/MemberRoom";
 import { messages } from "./utils/messages";
-import { sendMessage } from "./utils/send-message";
+import { sendMessage } from "./utils/sendMessage";
 import { responses } from "./utils/responses";
-import { sendResponse } from "./utils/send-response";
+import { sendResponse } from "./utils/sendResponse";
 import { sendReaction } from "./utils/sendReaction";
+import { getRoomInfo } from "./utils/getRoomInfo";
+import { deleteRoom } from "./utils/deleteRoom";
+import { updateRoom } from "./utils/updateRoom";
 
 const main = async () => {
 
@@ -115,12 +118,27 @@ const main = async () => {
 
     app.get("/logout", async (req,res) => {
         await logout(req,res)
-        res.sendStatus(200);
+        res.sendStatus(200)
     })
 
     app.get("/rooms", async (req,res) => {
         const myrooms = await rooms(req)
         res.send(myrooms)
+    })
+
+    app.delete("/rooms", async (req,res) => {
+        await deleteRoom(req)
+        res.sendStatus(200)
+    })
+
+    app.put("/room-info", async (req,res) => {
+        await updateRoom(req)
+        res.sendStatus(200)
+    })
+
+    app.get("/room-info", async (req,res) => {
+        const room = await getRoomInfo(req)
+        res.send(room)
     })
 
     app.get("/members", async (req,res) => {

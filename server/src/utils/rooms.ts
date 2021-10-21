@@ -10,6 +10,7 @@ export const rooms = async (req:Request) => {
     .createQueryBuilder("room")
     .leftJoinAndSelect(MemberRoom, 'memberroom', 'room.id = memberroom.roomId')
     .where('memberroom.memberId = :memberId', { memberId: req.session.userId })
+    .orderBy('room.createdAt')
     .getMany();
 
     return rooms;
