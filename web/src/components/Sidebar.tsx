@@ -14,6 +14,7 @@ interface Room {
     public: boolean;
     createdAt: Date;
     updatedAt: Date;
+    dm: boolean;
 }
 
 export default function Sidebar() {
@@ -40,7 +41,7 @@ export default function Sidebar() {
             bg={colorMode === 'dark' ? "#1a202c" : "#fff"} border={"none"}
             display={"flex"} flex={1} flexDirection={'column'} flexBasis={'10%'}
             overflowY={"scroll"} overflowX={"hidden"}
-            allowToggle defaultIndex={0} allowMultiple
+            allowMultiple allowToggle defaultIndex={[0]}
             >
             <AccordionItem border={"none"}>
                 <h2>
@@ -51,9 +52,40 @@ export default function Sidebar() {
                         <AccordionIcon />
                     </AccordionButton>
                 </h2>
+                <AccordionPanel p={0}>
+                    <Stack spacing={0} w={"100%"}>
+                    {rooms ? rooms.filter(r => !r.dm).map((room) => {
+                        return <Box key={room.id}>
+                            <Button w={"100%"} 
+                                bg={currRoom === room.id ? 'teal' : colorMode === 'dark' ? '#1a202c' : '#fff'}
+                                color={colorMode === 'dark' ? '#fff' : "#333"} borderRadius={0}
+                                pl={3} textAlign={"left"} display={"block"}
+                                leftIcon={room.public === true ? <AtSignIcon/> : <LockIcon/>}
+                                onClick={
+                                    currRoom !== room.id ?
+                                    () => {setRoom(room.id)}
+                                    :
+                                    ()=>{}
+                                }>
+                                {room.title}
+                            </Button>
+                            </Box>
+                    }) : null }
+                    </Stack>
+                </AccordionPanel>
+            </AccordionItem>
+            <AccordionItem border={"none"}>
+                <h2>
+                    <AccordionButton color={colorMode === 'dark' ? "#fff" : "#333"}>
+                        <Box flex="1" textAlign="left">
+                            DMs
+                        </Box>
+                        <AccordionIcon />
+                    </AccordionButton>
+                </h2>
                 <AccordionPanel p={0} >
                     <Stack spacing={0} w={"100%"}>
-                    {rooms ? rooms.map((room) => {
+                    {rooms ? rooms.filter(r => r.dm).map((room) => {
                         return <Box key={room.id}>
                             <Button w={"100%"} 
                                 bg={currRoom === room.id ? 'teal' : colorMode === 'dark' ? '#1a202c' : '#fff'}

@@ -6,15 +6,15 @@ import { InputField } from '../components/InputField';
 import router from 'next/router';
 import axios from 'axios';
 import { FormWrapper } from '../components/FormWrapper';
+import { useQueryClient } from 'react-query';
 
 const Register: React.FC<{}> = () => {
+
+    const queryClient = useQueryClient()
 
     const register = async (values:any) => {
         axios.post('http://localhost:3001/register', {values}, {
               withCredentials: true,
-          })
-          .then(() => {
-            router.replace("/")
           })
     }
 
@@ -23,8 +23,9 @@ const Register: React.FC<{}> = () => {
             <Formik
                 initialValues={{email: '', username: '', password: ''}}
                 onSubmit={async (values) => {
-                    await register(values);
-                    router.replace("/");
+                    await register(values)
+                    await queryClient.invalidateQueries("fetchMe")
+                    router.replace("/")
                 }}>
                 {({isSubmitting}) => (
                     <Form>

@@ -6,12 +6,16 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { useColorMode } from '@chakra-ui/color-mode';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
-import { useQuery } from 'react-query';
+import { useIsAuth } from '../utils/useIsAuth';
 
 export const NavBar: React.FC<{}> = () => {
 
     let content = null
     const router = useRouter();
+
+    const { colorMode, toggleColorMode } = useColorMode()
+    const me = useIsAuth()
+
     const logout = async () => {
         axios.get('http://localhost:3001/logout', {
               withCredentials: true,
@@ -19,17 +23,6 @@ export const NavBar: React.FC<{}> = () => {
             router.reload()
         })
     }
-
-    const { colorMode, toggleColorMode } = useColorMode()
-
-    const fetchMe = async () => {
-        const {data} = await axios.get('http://localhost:3001/me', {
-            withCredentials: true,
-        })    
-        return data
-    }
-
-    const { data:me } = useQuery('fetchMe', fetchMe)
 
     if(me) {
         content = (

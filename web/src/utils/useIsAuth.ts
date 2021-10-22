@@ -16,6 +16,9 @@ export const useIsAuth = () => {
     useEffect(() => {
         if(isFetched && !me) {
             router.replace("/login");
+            return
         }
     }, [me, isFetched, router]);
+
+    return me
 }

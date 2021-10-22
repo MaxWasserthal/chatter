@@ -48,6 +48,8 @@ export const RoomModalContents: React.FC<Props> = ({roomId, onClose, roomInfo}) 
         return data;
     }
 
+    const { data:members } = useQuery("fetchMembers", getMembers)
+
     const deleteRoom = async () => {
         await axios.delete('http://localhost:3001/rooms', {
             withCredentials: true,
@@ -60,8 +62,6 @@ export const RoomModalContents: React.FC<Props> = ({roomId, onClose, roomInfo}) 
             onClose()
         })
     }
-
-    const { data:members } = useQuery("fetchMembers", getMembers)
 
     return (
         <ModalContent>

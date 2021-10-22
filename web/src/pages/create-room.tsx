@@ -40,7 +40,7 @@ const CreateRoom:React.FC<{}> = () => {
     return (
         <FormWrapper>
             <Formik
-                initialValues={{title: '', publ: true, members: [] as Member[]}}
+                initialValues={{title: '', publ: true, members: [] as Member[], dm: false}}
                 onSubmit={async (values) => {
                     await createRoom(values);
                     queryClient.invalidateQueries('fetchRooms')

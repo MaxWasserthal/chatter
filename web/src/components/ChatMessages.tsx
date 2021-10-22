@@ -15,6 +15,7 @@ import { BsEmojiLaughing } from 'react-icons/bs'
 import { EmojiModalContents } from './EmojiModalContents'
 import { ChatHeader } from './ChatHeader'
 import { Tooltip } from '@chakra-ui/tooltip'
+import { useIsAuth } from '../utils/useIsAuth'
 
 interface Message {
     message_id: number;
@@ -28,14 +29,7 @@ interface Message {
 
 export default function ChatMessages() {
 
-    const fetchMe = async () => {
-        const {data} = await axios.get('http://localhost:3001/me', {
-            withCredentials: true,
-        })    
-        return data
-    }
-
-    const { data:me } = useQuery('fetchMe', fetchMe)
+    const me = useIsAuth()
 
     const setRef = useCallback((node:any) => {
         if(node){
@@ -43,7 +37,7 @@ export default function ChatMessages() {
         }
     }, [])
 
-    const {currRoom,} = useContext(roomContext);
+    const {currRoom,} = useContext(roomContext)
     const queryClient = useQueryClient()
 
     const fetchMessages = async () => {
