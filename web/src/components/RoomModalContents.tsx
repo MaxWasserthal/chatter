@@ -2,9 +2,12 @@ import { Button } from "@chakra-ui/button"
 import { DeleteIcon } from "@chakra-ui/icons"
 import { Flex } from "@chakra-ui/layout"
 import { ModalBody, ModalCloseButton, ModalContent, ModalHeader } from "@chakra-ui/modal"
+import { useToast } from "@chakra-ui/toast"
 import axios from "axios"
 import { Form, Formik } from "formik"
+import { useContext } from 'react'
 import { useQuery, useQueryClient } from "react-query"
+import RoomContext from "../context/room"
 import CustomSelect from "./CustomSelect"
 import { InputField } from "./InputField"
 
@@ -22,23 +25,34 @@ interface Member {
 }
 
 interface Props {
-    roomId: number;
     onClose: () => void;
     roomInfo: Room;
 }
 
-export const RoomModalContents: React.FC<Props> = ({roomId, onClose, roomInfo}) => {
+export const RoomModalContents: React.FC<Props> = ({onClose, roomInfo}) => {
 
     const queryClient = useQueryClient();
-    const memIds = roomInfo?.members.map(m => parseInt(m.split(",")[1]))
+    const memIds = roomInfo.members ? roomInfo.members?.map(m => parseInt(m.split(",")[1])) : []
+
+    const {currRoom, setRoom} = useContext(RoomContext)
+    const toast = useToast()
 
     const saveRoomInfo = async (values:any) => {
-        await axios.put("http://localhost:3001/room-info", {values}, {
+        const res = await axios.put("http://localhost:3001/room-info", {values}, {
             withCredentials: true,
             params: {
-                roomId: roomId
+                roomId: currRoom
             }
         })
+        .catch((err) => {
+            toast({
+                title: err.response.data.message,
+                status: 'error',
+                isClosable: true,
+            });
+            return null
+        })
+        return res
     }
 
     const getMembers = async () => {
@@ -54,11 +68,12 @@ export const RoomModalContents: React.FC<Props> = ({roomId, onClose, roomInfo}) 
         await axios.delete('http://localhost:3001/rooms', {
             withCredentials: true,
             params: {
-                roomId: roomId,
+                roomId: currRoom,
             }
         })
         .then(async () => {
             await queryClient.invalidateQueries("fetchRooms")
+            setRoom(1)
             onClose()
         })
     }
@@ -72,16 +87,30 @@ export const RoomModalContents: React.FC<Props> = ({roomId, onClose, roomInfo}) 
                     initialValues={{title: roomInfo?.room_title, members: memIds}}
                     onSubmit={async (values) => {
                         if(values.title !== '' && values.members?.length !== 0) {
-                            await saveRoomInfo(values)
-                            await queryClient.invalidateQueries('fetchRoomInfo')
-                            await queryClient.invalidateQueries('fetchRooms')
-                            onClose()
+                            const res = await saveRoomInfo(values)
+                            if(res) {
+                                await queryClient.invalidateQueries('fetchRoomInfo')
+                                await queryClient.invalidateQueries('fetchRooms')
+                                onClose()
+                            }
+                        } else if(values.title === '') {
+                            toast({
+                                title: "Enter a title",
+                                status: 'error',
+                                isClosable: true,
+                            });
+                        } else {
+                            toast({
+                                title: "Select members",
+                                status: 'error',
+                                isClosable: true,
+                            });
                         }
                     }}>
                     {({isSubmitting}) => (
                         <Form>
                             <InputField name="title" label={"title"} placeholder={roomInfo?.room_title}/>
-                            {members ? 
+                            {members ?
                             <CustomSelect name="members" label="members">
                                 {members?.map((member) => {
                                     return (

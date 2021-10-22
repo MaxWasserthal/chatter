@@ -51,7 +51,7 @@ export const ChatHeader: React.FC<Props> = ({roomId, username}) => {
             : null }
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalOverlay/>
-                <RoomModalContents onClose={onClose} roomId={roomId} roomInfo={roomInfo as Room}/>
+                <RoomModalContents onClose={onClose} roomInfo={roomInfo as Room}/>
             </Modal>
         </Flex>
     )

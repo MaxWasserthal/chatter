@@ -82,9 +82,8 @@ const main = async () => {
     })
 
     app.post("/login", async (req,res) => {
-        const result = await login(pool, req.body.values)
-        result != undefined ? req.session.userId = result : null;
-        res.sendStatus(200);
+        const result = await login(req.body.values)
+        result.errorRes !== "" ? res.status(500).send({message:result.errorRes}) : req.session.userId = result.userId
     })
 
     app.get("/me", async (req,res) => {

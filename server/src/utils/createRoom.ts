@@ -4,11 +4,21 @@ import { Member } from "../entities/Member";
 import { MemberRoom } from "../entities/MemberRoom";
 import { Room } from "../entities/Room";
 
+interface ResponseWithError {
+    roomRes: Room,
+    errorRes: string,
+}
+
 export const createRoom = async (req:Request) => {
 
     const {title, publ, dm} = req.body.values
     var memberIds = req.body.values.members
     const userId = req.session.userId
+
+    var res:ResponseWithError = {
+        roomRes: {} as Room,
+        errorRes: "",
+    }
 
     const members = getRepository(Member)
 
@@ -26,7 +36,11 @@ export const createRoom = async (req:Request) => {
     room.dm = dm
     room.creator = mem as Member
 
-    await room.save()
+    res.roomRes = room as Room
+
+    await room.save().catch(() => {
+        res.errorRes = "Room already exists"
+    })
 
     mems.push(mem as Member);
 
@@ -35,8 +49,10 @@ export const createRoom = async (req:Request) => {
         member_room.member = memb as Member
         member_room.room = room as Room
     
-        await member_room.save()
+        await member_room.save().catch(() => {
+            res.errorRes = "Something went wrong"
+        })
     })
 
-    return room;
+    return res;
 }

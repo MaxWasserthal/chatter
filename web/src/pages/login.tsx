@@ -8,15 +8,27 @@ import router from 'next/router';
 import axios from 'axios';
 import { FormWrapper } from '../components/FormWrapper';
 import { useQueryClient } from 'react-query';
+import { useToast } from '@chakra-ui/toast';
 
 const Login:React.FC<{}> = () => {
 
     const queryClient = useQueryClient()
 
+    const toast = useToast()
+
     const login = async (values:any) => {
-        axios.post('http://localhost:3001/login', {values}, {
+        const res = axios.post('http://localhost:3001/login', {values}, {
               withCredentials: true,
-          })
+        })
+        .catch((err) => {
+            toast({
+                title: err.response.data.message,
+                status: 'error',
+                isClosable: true,
+            })
+            return null
+        })
+        return res
     }
 
     return (
@@ -24,9 +36,11 @@ const Login:React.FC<{}> = () => {
             <Formik
                 initialValues={{email: '', username: '', password: ''}}
                 onSubmit={async (values) => {
-                    await login(values)
-                    router.push("/")
-                    queryClient.invalidateQueries("fetchMe")
+                    const res = await login(values)
+                    if(res) {
+                        router.push("/")
+                        queryClient.invalidateQueries("fetchMe")
+                    }
                 }}
                 >
                 {({isSubmitting}) => (

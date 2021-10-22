@@ -4,14 +4,24 @@ import { MemberRoom } from '../entities/MemberRoom';
 import { Room } from '../entities/Room';
 import { Member } from '../entities/Member';
 
+interface ResponseWithError {
+    errorRes: string,
+}
+
 export const updateRoom = async (req:Request) => {
 
     const rooms = getRepository(Room);
 
+    var res:ResponseWithError = {
+        errorRes: "",
+    }
+
     const room = await rooms.findOne( { where: {id: req.query.roomId} } );
 
     room!.title = req.body.values.title;
-    room!.save()
+    room!.save().catch(() => {
+        res.errorRes = "Room already exists"
+    })
 
     var memberIds = req.body.values.members;
 
@@ -36,8 +46,10 @@ export const updateRoom = async (req:Request) => {
         member_room.member = memb as Member;
         member_room.room = room as Room;
 
-        await member_room.save();
+        await member_room.save().catch(() => {
+            res.errorRes = "Something went wrong"
+        });
     })
 
-    return true;
+    return res;
 }

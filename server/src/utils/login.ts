@@ -1,15 +1,31 @@
-import { Connection } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { Member } from '../entities/Member';
 import argon2 from 'argon2'
 
-export const login = async (conn:Connection, values:any) => {
+interface ResponseWithError {
+    userId: number,
+    errorRes: string,
+}
 
-    const members = conn.getRepository(Member);
-    const {usernameOrEmail, password} = values;
+export const login = async (values:any) => {
 
-    const mem = await members.findOne( usernameOrEmail.includes("@") ? { where: {email: usernameOrEmail}} : { where: {username: usernameOrEmail} });
+    const members = getRepository(Member)
+    const {usernameOrEmail, password} = values
 
-    const valid = await argon2.verify(mem!.password, password)
+    var res:ResponseWithError = {
+        userId: 0,
+        errorRes: "",
+    }
 
-    return valid ? mem!.id : undefined;
+    var valid = false
+
+    const mem = await members.findOne( usernameOrEmail.includes("@") ? { where: {email: usernameOrEmail}} : { where: {username: usernameOrEmail} })
+
+    mem ? 
+        valid = await argon2.verify(mem!.password, password)
+    : res.errorRes = "Username or password invalid"
+
+    valid ? res.userId = mem!.id : res.errorRes = "Username or password invalid"
+
+    return res
 }

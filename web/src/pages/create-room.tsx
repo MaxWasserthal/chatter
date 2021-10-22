@@ -10,6 +10,7 @@ import { CustomCheckbox } from '../components/CustomCheckbox';
 import { useQuery, useQueryClient } from 'react-query';
 import { useIsAuth } from '../utils/useIsAuth';
 import { FormWrapper } from '../components/FormWrapper';
+import { useToast } from '@chakra-ui/toast';
 
 interface Member {
     id: number;
@@ -22,16 +23,28 @@ const CreateRoom:React.FC<{}> = () => {
 
     const queryClient = useQueryClient()
 
+    const toast = useToast()
+
     const createRoom = async (values:any) => {
-        axios.post('http://localhost:3001/rooms', {values}, {
+        const res = axios.post('http://localhost:3001/rooms', {values}, {
               withCredentials: true,
-          })
+        })
+
+        .catch((err) => {
+            toast({
+                title: err.response.data.message,
+                status: 'error',
+                isClosable: true,
+            });
+            return null
+        })
+        return res
     }
 
     const fetchMembers = async () => {
         const {data} = await axios.get<Member[]>('http://localhost:3001/members', {
             withCredentials: true,
-        })    
+        })
         return data
     }
 
@@ -42,9 +55,13 @@ const CreateRoom:React.FC<{}> = () => {
             <Formik
                 initialValues={{title: '', publ: true, members: [] as Member[], dm: false}}
                 onSubmit={async (values) => {
-                    await createRoom(values);
-                    queryClient.invalidateQueries('fetchRooms')
-                    router.push("/")
+                    if(values.title !== '' && values.members?.length !== 0) {
+                        const res = await createRoom(values);
+                        if(res) {
+                            await queryClient.invalidateQueries('fetchRooms')
+                            router.push("/")
+                        }
+                    }
                 }}
                 >
                 {({isSubmitting}) => (
