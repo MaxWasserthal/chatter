@@ -21,6 +21,9 @@ export class Room extends BaseEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @Column()
+    dm?: boolean;
+
     //creator of room
     @ManyToOne(() => Member, user => user.id)
     creator: Member;

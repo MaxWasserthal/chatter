@@ -76,7 +76,7 @@ const main = async () => {
     const server = require('http').createServer(app);
 
     app.post("/register", async (req,res) => {
-        const result = await register(pool, req.body.values)
+        const result = await register(req)
         result != undefined ? req.session.userId = result : null;
         res.sendStatus(200);
     })
