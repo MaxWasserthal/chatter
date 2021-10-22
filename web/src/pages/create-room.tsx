@@ -23,7 +23,7 @@ const CreateRoom:React.FC<{}> = () => {
     const queryClient = useQueryClient()
 
     const createRoom = async (values:any) => {
-        axios.post('http://localhost:3001/create-room', {values}, {
+        axios.post('http://localhost:3001/rooms', {values}, {
               withCredentials: true,
           })
     }

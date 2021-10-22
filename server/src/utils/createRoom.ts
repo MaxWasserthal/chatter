@@ -1,14 +1,16 @@
-import { Connection } from "typeorm";
+import { Request } from "express";
+import { getRepository } from "typeorm";
 import { Member } from "../entities/Member";
 import { MemberRoom } from "../entities/MemberRoom";
 import { Room } from "../entities/Room";
 
-export const createRoom = async (conn:Connection, values:any, userId:number) => {
+export const createRoom = async (req:Request) => {
 
-    const {title, publ} = values;
-    var memberIds = values.members;
+    const {title, publ} = req.body.values
+    var memberIds = req.body.values.members
+    const userId = req.session.userId
 
-    const members = conn.getRepository(Member);
+    const members = getRepository(Member);
 
     const mem = await members.findOne( { where: {id: userId} } );
 
@@ -23,17 +25,17 @@ export const createRoom = async (conn:Connection, values:any, userId:number) => 
     room.public = publ;
     room.creator = mem as Member;
 
-    const rm = await conn.manager.save(room);
+    await room.save()
 
     mems.push(mem as Member);
 
     mems.forEach( async (memb:Member) => {
         let member_room = new MemberRoom();
         member_room.member = memb as Member;
-        member_room.room = rm as Room;
+        member_room.room = room as Room;
     
-        await conn.manager.save(member_room);
+        await member_room.save()
     })
 
-    return rm;
+    return room;
 }

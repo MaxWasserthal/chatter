@@ -1,12 +1,11 @@
 import React from "react";
-
 import { useField } from "formik";
 import Select from "react-select";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 
 function CustomSelect({ label, ...props }:any) {
   const [field, , { setValue }] = useField(props);
-  const options = props.children.map((option:any) => ({
+  const options = props?.children?.map((option:any) => ({
     value: option.props.value,
     label: option.props.children,
   }));

@@ -7,15 +7,15 @@ import NextLink from 'next/link';
 import router from 'next/router';
 import axios from 'axios';
 import { FormWrapper } from '../components/FormWrapper';
+import { useQueryClient } from 'react-query';
 
 const Login:React.FC<{}> = () => {
+
+    const queryClient = useQueryClient()
 
     const login = async (values:any) => {
         axios.post('http://localhost:3001/login', {values}, {
               withCredentials: true,
-          })
-          .then(() => {
-            router.replace("/")
           })
     }
 
@@ -24,8 +24,9 @@ const Login:React.FC<{}> = () => {
             <Formik
                 initialValues={{email: '', username: '', password: ''}}
                 onSubmit={async (values) => {
-                    await login(values);
+                    await login(values)
                     router.push("/")
+                    queryClient.invalidateQueries("fetchMe")
                 }}
                 >
                 {({isSubmitting}) => (

@@ -73,7 +73,7 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                                 ref={response.id === responses[responses.length-1].id ? setRef : null}>
                                 <Box display={"flex"}>
                                     <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{response.creator.username}</Text>
-                                    <Text fontSize="xs" lineHeight={"25px"}>{response.createdAt.toString().split("T")[1].split(".")[0]}</Text>
+                                    <Text fontSize="xs" lineHeight={"25px"}>{new Date(response.createdAt).toLocaleTimeString()}</Text>
                                 </Box>
                                 <Box p={2} borderRadius={5} color={"#fff"} bg={'teal'}>
                                 { response.content.split("\n").map((line, idx) => {

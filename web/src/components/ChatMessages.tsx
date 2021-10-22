@@ -119,7 +119,7 @@ export default function ChatMessages() {
                         ref={message.message_id === messages[messages.length-1].message_id ? setRef : null}>
                             <Box display={"flex"} pb={1}>
                                 <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{message.member_username}</Text>
-                                <Text fontSize="xs" lineHeight={"25px"}>{message.message_createdAt.toString().split("T")[1].split(".")[0]}</Text>
+                                <Text fontSize="xs" lineHeight={"25px"}>{new Date(message.message_createdAt).toLocaleTimeString()}</Text>
                             </Box>
                             <Box p={2} borderRadius={5} color={"#fff"} bg={mebool ? 'teal' : 'grey'}>
                                 {message.message_content.split("\n").map((line, idx) => {
