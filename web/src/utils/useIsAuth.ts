@@ -3,9 +3,17 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useQuery } from "react-query";
 
+interface Member {
+    id: number;
+    username: string;
+    email: string;
+    telephone: string;
+    description: string;
+}
+
 export const useIsAuth = () => {
     const fetchMe = async () => {
-        const {data} = await axios.get('http://localhost:3001/me', {
+        const {data} = await axios.get<Member>('http://localhost:3001/me', {
             withCredentials: true,
         })
         return data

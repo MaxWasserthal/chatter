@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, OneToMany, UpdateDateColumn, BaseEntity } from 'typeorm';
+import { Logtimes } from './Logtimes';
 import { Member } from './Member';
 import { MemberRoom } from './MemberRoom';
 import { Message } from './Message';
@@ -21,7 +22,7 @@ export class Room extends BaseEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @Column()
+    @Column({nullable: true})
     dm?: boolean;
 
     //creator of room
@@ -37,5 +38,8 @@ export class Room extends BaseEntity {
     //users in room
     @OneToMany(() => MemberRoom, memberroom => memberroom.room)
     memberroom: MemberRoom[];
+
+    @OneToMany(() => Logtimes, logtime => logtime.member)
+    logtimes: Logtimes[];
 
 }

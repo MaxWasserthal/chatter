@@ -15,7 +15,6 @@ import { createConnection } from 'typeorm';
 import { register } from "./utils/register";
 import { login } from "./utils/login";
 import { COOKIE_NAME } from "./constants";
-import { me } from "./utils/me";
 import { logout } from "./utils/logout";
 import { RoomRouter } from "./routes/rooms";
 import { RoomInfoRouter } from "./routes/room-info";
@@ -23,6 +22,9 @@ import { MessageRouter } from "./routes/messages";
 import { ReactionRouter } from "./routes/reactions";
 import { ResponseRouter } from "./routes/responses";
 import { MembersRouter } from "./routes/members";
+import { Logtimes } from "./entities/Logtimes";
+import { logtimes } from "./utils/logtimes";
+import { MeRouter } from "./routes/me";
 
 const main = async () => {
 
@@ -39,7 +41,7 @@ const main = async () => {
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
         logging: true,
-        entities: [Member, Message, Reaction, Role, Room, MemberRoom],
+        entities: [Member, Message, Reaction, Role, Room, MemberRoom, Logtimes],
         migrations: [path.join(__dirname, "./migrations/*")]
     })
 
@@ -77,23 +79,32 @@ const main = async () => {
 
     app.post("/register", async (req,res) => {
         const result = await register(req)
-        result != undefined ? req.session.userId = result : null;
-        res.sendStatus(200);
+        if(result.errorRes !== "") {
+            res.status(500).send({message:result.errorRes})
+        } else {
+            req.session.userId = result.userId
+            res.sendStatus(200)
+        }
     })
 
     app.post("/login", async (req,res) => {
         const result = await login(req.body.values)
-        result.errorRes !== "" ? res.status(500).send({message:result.errorRes}) : req.session.userId = result.userId
-    })
-
-    app.get("/me", async (req,res) => {
-        const username = await me(pool, req)
-        res.send(username);
+        if(result.errorRes !== "") {
+            res.status(500).send({message:result.errorRes})
+        } else {
+            req.session.userId = result.userId
+            res.sendStatus(200)
+        }
     })
 
     app.get("/logout", async (req,res) => {
         await logout(req,res)
         res.sendStatus(200)
+    })
+
+    app.get("/logtimes", async (req,res) => {
+        const lt = await logtimes(req)
+        res.send(lt)
     })
 
     app.use(RoomRouter)
@@ -102,6 +113,7 @@ const main = async () => {
     app.use(ReactionRouter)
     app.use(ResponseRouter)
     app.use(MembersRouter)
+    app.use(MeRouter)
 
     app.use(cookieParser)
 

@@ -35,7 +35,11 @@ export const NavBar: React.FC<{}> = () => {
                 <NextLink href="/create-room">
                     <Button as={Link} mr={2} alignSelf="center">create room</Button>
                 </NextLink>
-                <Box m={3}>{me}</Box>
+                <Box m={3}>
+                    <NextLink href="/user">
+                        <Button variant="link" color={'#fff'}>{me.username}</Button>
+                    </NextLink>
+                </Box>
                 <Button onClick={async () => {
                     await logout();
                 }}

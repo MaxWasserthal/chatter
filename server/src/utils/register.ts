@@ -5,21 +5,48 @@ import { getRepository } from 'typeorm';
 import { Room } from '../entities/Room';
 import { MemberRoom } from '../entities/MemberRoom';
 
+interface ResponseWithError {
+    userId: number,
+    errorRes: string,
+}
+
 export const register = async (req:Request) => {
 
-    const {email, username, password} = req.body.values;
+    const {email, username, password, telephone, description} = req.body.values;
+
+    var res:ResponseWithError = {
+        userId: 0,
+        errorRes: "",
+    }
 
     const members = getRepository(Member);
 
     const memberList = await members.find( { where: {blocked: false} } );
 
+    const duplicateEmail = await members.findOne({ where: {email: email}})
+    const duplicateUsername = await members.findOne({ where: {username: username}})
+    if(duplicateEmail) {
+        res.errorRes = "Email is already taken"
+        return res
+    } else if(duplicateUsername) {
+        res.errorRes = "Username is already taken"
+        return res
+    }
+
     let member = new Member()
     member.username = username
     member.password = await argon2.hash(password)
     member.email = email
+    member.telephone = telephone
+    member.description = description
     member.blocked = false
+    member.verified = false
 
-    member.save()
+    member.save().catch(() => {
+        
+    })
+
+    res.userId = member.id
 
     memberList.forEach(async(m) => {
         let room = new Room()
@@ -40,5 +67,5 @@ export const register = async (req:Request) => {
         await member_room2.save()
     })
 
-    return member.id;
+    return res;
 }

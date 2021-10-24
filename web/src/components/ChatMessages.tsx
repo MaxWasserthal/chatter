@@ -100,10 +100,10 @@ export default function ChatMessages() {
     return (
         <Box display={'flex'} flex={1} flexDirection={'column'} flexBasis={"80%"} pl={"2%"}
         position={"absolute"} right={0} width={"85%"}>
-            {me ? <ChatHeader roomId={currRoom} username={me}/> : null }
+            {me ? <ChatHeader roomId={currRoom} username={me.username}/> : null }
             <Stack px={5} overflowY={"scroll"} h={"63vh"}>
                 {messages ? messages.map((message) => {
-                    let mebool = message.member_username === me;
+                    let mebool = message.member_username === me!.username;
                     return (
                         <Box
                         display={'flex'} flexDirection={'column'}
@@ -124,7 +124,7 @@ export default function ChatMessages() {
                             </Box>
                             <Flex my={1}>
                                 <Tooltip label={"React"} placement={"top"} openDelay={500}>
-                                    <IconButton aria-label={"React"} mr={message.reactions ? 1 : 0} order={mebool === me ? 1 : 0}
+                                    <IconButton aria-label={"React"} mr={message.reactions ? 1 : 0} order={mebool ? 1 : 0}
                                     icon={<Icon as={BsEmojiLaughing}/>}
                                     onClick={() => openingModal(message.message_id)}/>
                                 </Tooltip>

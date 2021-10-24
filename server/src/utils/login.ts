@@ -1,6 +1,7 @@
 import { getRepository } from 'typeorm';
 import { Member } from '../entities/Member';
 import argon2 from 'argon2'
+import { Logtimes } from '../entities/Logtimes';
 
 interface ResponseWithError {
     userId: number,
@@ -26,6 +27,16 @@ export const login = async (values:any) => {
     : res.errorRes = "Username or password invalid"
 
     valid ? res.userId = mem!.id : res.errorRes = "Username or password invalid"
+
+    const logtimes = getRepository(Logtimes)
+    const logtime = await logtimes.findOne({where: {timeEnd: null, member: mem}})
+
+    if(!logtime) {
+        let newTime = new Logtimes()
+        newTime.timeStart = new Date
+        newTime.member = mem as Member
+        await newTime.save()
+    }
 
     return res
 }
