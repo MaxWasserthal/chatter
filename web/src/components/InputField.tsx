@@ -8,6 +8,7 @@ type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
     textarea?: boolean;
 };
 
+// input field to use with formik
 export const InputField: React.FC<InputFieldProps> = ({label, textarea, size: _, ...props}) => {
     let InputOrTextarea = Input
     if(textarea) {

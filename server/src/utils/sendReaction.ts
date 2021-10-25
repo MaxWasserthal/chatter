@@ -12,7 +12,9 @@ export const sendReaction = async (req:Request) => {
     const messages = getRepository(Message);
     const message = await messages.findOne({ where: { id: req.body.messageId }})
 
+    // create new reaction instance
     let reaction = new Reaction()
+    // save emoji as unified string
     reaction.emoji = req.body.unified as string;
     reaction.reactor = mem as Member;
     reaction.reactionTo = message as Message;

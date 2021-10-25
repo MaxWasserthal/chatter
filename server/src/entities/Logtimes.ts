@@ -4,6 +4,7 @@ import { Member } from "./Member";
 @Entity()
 export class Logtimes extends BaseEntity {
 
+    // login times for every user
     @PrimaryGeneratedColumn()
     id: number;
 

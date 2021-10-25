@@ -23,15 +23,19 @@ interface Props {
     user: Member;
 }
 
+// returns a modal window for editing user information
 export const EditUserInfoModal: React.FC<Props> = ({onClose, user}) => {
 
+    // use toasts for error messages
     const toast = useToast()
     const queryClient = useQueryClient()
 
+    // method for saving user info
     const saveUserInfo = async (values:any) => {
         const res = await axios.put("http://localhost:3001/me", {values}, {
             withCredentials: true,
         })
+        // catch errors and display the response message
         .catch((err) => {
             toast({
                 title: err.response.data.message,
@@ -43,14 +47,18 @@ export const EditUserInfoModal: React.FC<Props> = ({onClose, user}) => {
         return res
     }
 
+    // method for deleting the current account
     const deleteAccount = async () => {
         await axios.delete('http://localhost:3001/me', {
             withCredentials: true,
         })
         .then(async () => {
+            // update member cache
             await queryClient.invalidateQueries("fetchMembers")
             await queryClient.invalidateQueries("fetchMe")
+            // close the window afterwards
             onClose()
+            // move the user to registration screen
             router.push("/register")
         })
     }

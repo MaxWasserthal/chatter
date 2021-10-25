@@ -26,16 +26,20 @@ interface Props {
     roomId: number;
 }
 
+
+// returns a sidebar for displaying responses to the current message
 export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
 
     const queryClient = useQueryClient()
 
+    // scroll into view when new repsonse is sent
     const setRef = useCallback((node:any) => {
         if(node){
             node.scrollIntoView({ smooth: true })
         }
     }, [])
 
+    // method for getting all responses to current message
     const fetchResponses = async () => {
         const {data} = await axios.get<Message[]>('http://localhost:3001/responses', {
             withCredentials: true,
@@ -47,6 +51,7 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
         return data
     }
 
+    // method to send a new response to current message
     const sendResponse = async (response:any) => {
         await axios.post('http://localhost:3001/responses', { response }, {
             withCredentials: true,
@@ -57,6 +62,7 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
         })
     }
 
+    // react-query to get responses and cache them
     const { data:responses } = useQuery('fetchResponses', fetchResponses)
 
     return (
@@ -67,6 +73,7 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                 <DrawerHeader>Thread</DrawerHeader>
                 <DrawerBody>
                     <Stack>
+                        {/* if there are responses, display them stacked */}
                         { responses ? responses.map((response) => {
                             return (
                                 <Box pb={3}
@@ -76,6 +83,7 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                                     <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{response.creator.username}</Text>
                                     <Text fontSize="xs" lineHeight={"25px"}>{new Date(response.createdAt).toLocaleTimeString()}</Text>
                                 </Box>
+                                {/* split multiline responses into individual text elements */}
                                 <Box p={2} borderRadius={5} color={"#fff"} bg={'teal'}>
                                 { decrypt(response.content).split("\n").map((line, idx) => {
                                     return (
@@ -95,8 +103,11 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                         onSubmit={async (values, {resetForm}) => {
                             if(values.content !== '') {
                                 await sendResponse(encrypt(values.content))
+                                // fetch responses new
                                 await queryClient.invalidateQueries('fetchResponses')
+                                // fetch messages new -> new response count
                                 await queryClient.invalidateQueries('fetchMessages')
+                                // clear input field after submitting
                                 resetForm()
                             }
                         }}>

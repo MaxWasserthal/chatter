@@ -28,23 +28,31 @@ import { MeRouter } from "./routes/me";
 
 const main = async () => {
 
-    const app = express();
-    const cookieParser = require('cookie-parser')();
+    // define express app
+    const app = express()
+    // define cookieParser
+    const cookieParser = require('cookie-parser')()
 
-    const RedisStore = require('connect-redis')(session);
-    const redis = new Redis(6379, 'localhost');
+    // define new redis store
+    const RedisStore = require('connect-redis')(session)
+    const redis = new Redis(6379, 'localhost') // port for redis db
+    // create database connection
     const pool = await createConnection({
         type: "postgres",
+        // get values from .env file
         host: process.env.DB_HOST,
         port: parseInt(process.env.DB_PORT as any),
         username: process.env.DB_USER,
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
         logging: true,
+        // define entities from typeorm to use
         entities: [Member, Message, Reaction, Role, Room, MemberRoom, Logtimes],
+        // define migrations folder
         migrations: [path.join(__dirname, "./migrations/*")]
     })
 
+    // enable cors from frontend
     app.use(cors({
         origin: process.env.ORIGIN_URL,
         credentials: true,
@@ -52,8 +60,10 @@ const main = async () => {
 
     app.options('*', cors)
 
+    // use json to work with requests and responses
     app.use(express.json());
 
+    // define session with cookie in redis
     const sessionMiddleware = session({
         name: COOKIE_NAME,
         store: new RedisStore({
@@ -71,42 +81,52 @@ const main = async () => {
         saveUninitialized: false,
     })
 
+    // use the session middleware
     app.use(sessionMiddleware);
 
+    // run all migrations in migrations folder
     await pool.runMigrations();
 
+    // create http server
     const server = require('http').createServer(app);
 
+    // catch register call
     app.post("/register", async (req,res) => {
         const result = await register(req)
         if(result.errorRes !== "") {
             res.status(500).send({message:result.errorRes})
         } else {
+            // set userId in session if no errors
             req.session.userId = result.userId
             res.sendStatus(200)
         }
     })
 
+    // catch login call
     app.post("/login", async (req,res) => {
         const result = await login(req.body.values)
         if(result.errorRes !== "") {
             res.status(500).send({message:result.errorRes})
         } else {
+            // set userId in session if no errors
             req.session.userId = result.userId
             res.sendStatus(200)
         }
     })
 
+    // catch logout call
     app.get("/logout", async (req,res) => {
         await logout(req,res)
         res.sendStatus(200)
     })
 
+    // catch logtimes call
     app.get("/logtimes", async (req,res) => {
         const lt = await logtimes(req)
         res.send(lt)
     })
 
+    // use all routers defined in ./routers
     app.use(RoomRouter)
     app.use(RoomInfoRouter)
     app.use(MessageRouter)
@@ -115,11 +135,14 @@ const main = async () => {
     app.use(MembersRouter)
     app.use(MeRouter)
 
+    // use cookieParser
     app.use(cookieParser)
 
+    // launch server on port 3001
     server.listen(3001)
 }
 
+// execute main function
 main().catch((err) => {
     console.error(err);
 });

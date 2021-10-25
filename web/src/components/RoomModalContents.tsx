@@ -29,14 +29,17 @@ interface Props {
     roomInfo: Room;
 }
 
+// returns a modal window for editing room information
 export const RoomModalContents: React.FC<Props> = ({onClose, roomInfo}) => {
 
     const queryClient = useQueryClient();
+    // get members of the current room
     const memIds = roomInfo.members ? roomInfo.members?.map(m => parseInt(m.split(",")[1])) : []
 
     const {currRoom, setRoom} = useContext(RoomContext)
     const toast = useToast()
 
+    // method for saving the room information
     const saveRoomInfo = async (values:any) => {
         const res = await axios.put("http://localhost:3001/room-info", {values}, {
             withCredentials: true,

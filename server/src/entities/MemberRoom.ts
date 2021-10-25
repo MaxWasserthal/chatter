@@ -5,6 +5,7 @@ import { Room } from "./Room";
 @Entity()
 export class MemberRoom extends BaseEntity {
 
+    // table to map users and rooms they are members in
     @PrimaryGeneratedColumn()
     id: number;
 

@@ -17,6 +17,7 @@ export const sendMessage = async (req:Request) => {
 
     const room = await rooms.findOne({ where: { id: roomId }})
 
+    // create new message instance
     let message = new Message()
     message.content = req.body.message as string;
     message.creator = mem as Member;

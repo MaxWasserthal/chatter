@@ -8,14 +8,17 @@ import { useColorMode } from '@chakra-ui/color-mode';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { useIsAuth } from '../utils/useIsAuth';
 
+// returns a navigation component at the top to login/logout/register etc
 export const NavBar: React.FC<{}> = () => {
 
     let content = null
     const router = useRouter();
 
     const { colorMode, toggleColorMode } = useColorMode()
+    // get authentication status
     const me = useIsAuth()
 
+    // method for user logout
     const logout = async () => {
         axios.get('http://localhost:3001/logout', {
               withCredentials: true,
@@ -24,6 +27,7 @@ export const NavBar: React.FC<{}> = () => {
         })
     }
 
+    // if user is logged in display create-room button, username and logout button 
     if(me) {
         content = (
             <Flex align="center">
@@ -46,7 +50,9 @@ export const NavBar: React.FC<{}> = () => {
                 variant="link" color={'#fff'}>Logout</Button>
             </Flex>
         )
-    } else {
+    } 
+    // if no user display login and register button
+    else {
         content = (
             <>
                 <IconButton

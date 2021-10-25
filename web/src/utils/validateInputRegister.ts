@@ -4,6 +4,7 @@ interface InputValues {
     email: string;
 }
 
+// module to validate inputs on the registration page
 export const validateInputRegister = (values:InputValues) => {
 
     if(values.username === '') {

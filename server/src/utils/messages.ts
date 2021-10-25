@@ -8,6 +8,7 @@ export const messages = async (roomId:string) => {
         .createQueryBuilder("message")
         .select("message")
         .addSelect(
+            // subselect -> aggregation of responses to current message
             qb =>
                 qb
                 .select('COUNT(*)', 'responseCount')
@@ -16,6 +17,7 @@ export const messages = async (roomId:string) => {
             'responseCount',
         )
         .addSelect(
+            // subselect -> get reactions to current message
             qb =>
                 qb
                 .select("array_agg(reac.emoji)")
@@ -24,10 +26,13 @@ export const messages = async (roomId:string) => {
                 .groupBy('reac.reactionTo'),
             'reactions',
         )
+        // join to get the creator of the message
         .leftJoinAndSelect("message.creator", "member")
         .where("message.room.id = :id", { id: roomId })
+        // check if message is not a response
         .andWhere("message.responseId isnull")
         .orderBy("message.createdAt")
+        // get raw, because subquery is only returned on raw response
         .getRawMany();
 
     return mes;

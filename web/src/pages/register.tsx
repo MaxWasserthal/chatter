@@ -10,11 +10,13 @@ import { useQueryClient } from 'react-query';
 import { useToast } from '@chakra-ui/toast';
 import { validateInputRegister } from '../utils/validateInputRegister';
 
+// page to register for a new account
 const Register: React.FC<{}> = () => {
 
     const queryClient = useQueryClient()
     const toast = useToast()
 
+    // method to create a new account
     const register = async (values:any) => {
         const res = axios.post('http://localhost:3001/register', {values}, {
               withCredentials: true,

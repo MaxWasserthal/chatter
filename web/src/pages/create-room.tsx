@@ -17,14 +17,17 @@ interface Member {
     username: string;
 }
 
+// extra page for creating a new room
 const CreateRoom:React.FC<{}> = () => {
 
+    // check if user is authenticated
     useIsAuth()
 
     const queryClient = useQueryClient()
 
     const toast = useToast()
 
+    // method for creating a new room
     const createRoom = async (values:any) => {
         const res = axios.post('http://localhost:3001/rooms', {values}, {
               withCredentials: true,

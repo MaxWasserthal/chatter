@@ -3,6 +3,7 @@ interface InputValues {
     password: string;
 }
 
+// module to validate inputs on the login page
 export const validateInputLogin = (values:InputValues) => {
 
     if(values.usernameOrEmail === '') {

@@ -9,7 +9,9 @@ export const rooms = async (req:Request) => {
     const rooms = await getRepository(Room)
     .createQueryBuilder("room")
     .leftJoinAndSelect(MemberRoom, 'memberroom', 'room.id = memberroom.roomId')
+    // check if user is member of room
     .where('memberroom.memberId = :memberId', { memberId: req.session.userId })
+    // or if room is public
     .orWhere('room.public = :public', { public: true })
     .orderBy('room.createdAt')
     .getMany();

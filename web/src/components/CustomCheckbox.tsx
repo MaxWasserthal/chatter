@@ -7,6 +7,7 @@ type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
     name: string;
 };
 
+// create custom checkbox for using with formik
 export const CustomCheckbox: React.FC<InputFieldProps> = ({label, size: _, ...props}) => {
     const [field, {error}] = useField(props);
     return (

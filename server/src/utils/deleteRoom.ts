@@ -5,6 +5,7 @@ import { Room } from '../entities/Room';
 
 export const deleteRoom = async (req:Request) => {
 
+    // delete member_rooms of current room
     await getConnection()
     .createQueryBuilder()
     .delete()
@@ -12,6 +13,7 @@ export const deleteRoom = async (req:Request) => {
     .where("room = :roomId", { roomId: req.query.roomId })
     .execute()
 
+    // delete current room
     await getConnection()
     .createQueryBuilder()
     .delete()

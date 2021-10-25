@@ -8,6 +8,7 @@ import { MemberRoom } from './MemberRoom';
 @Entity()
 export class Member extends BaseEntity {
 
+    // accounts
     @PrimaryGeneratedColumn()
     id: number;
 

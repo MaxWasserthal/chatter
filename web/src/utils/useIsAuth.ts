@@ -11,6 +11,7 @@ interface Member {
     description: string;
 }
 
+// module to check user authentication
 export const useIsAuth = () => {
     const fetchMe = async () => {
         const {data} = await axios.get<Member>('http://localhost:3001/me', {

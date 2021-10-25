@@ -5,6 +5,7 @@ import { Member } from './Member';
 @Entity()
 export class Reaction extends BaseEntity {
 
+    // reaction in form of an emoji to a message
     @PrimaryGeneratedColumn()
     id: number;
 

@@ -3,6 +3,9 @@ import { AppProps } from 'next/app';
 import theme from 'theme';
 import { QueryClient, QueryClientProvider } from "react-query";
 
+/* returns the main app component with providers for
+/ queryClients -> to fetch and hydrate data caches
+/ chakraProvider -> for light/dark theme */
 function MyApp({ Component, pageProps }: AppProps):any {
 
   const queryClient = new QueryClient();

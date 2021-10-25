@@ -7,6 +7,7 @@ import { Room } from "../entities/Room";
 
 export const deleteMe = async (req:Request) => {
 
+    // delete all member_rooms from current user
     await getConnection()
     .createQueryBuilder()
     .delete()
@@ -14,6 +15,7 @@ export const deleteMe = async (req:Request) => {
     .where("room = :roomId", { roomId: req.query.roomId })
     .execute()
 
+    // delete dm rooms from current user
     await getConnection()
     .createQueryBuilder()
     .delete()
@@ -22,6 +24,7 @@ export const deleteMe = async (req:Request) => {
     .andWhere("creatorId = :cid", { cid: req.session.userId})
     .execute()
 
+    // delete logtimes from current user
     await getConnection()
     .createQueryBuilder()
     .delete()
@@ -29,6 +32,7 @@ export const deleteMe = async (req:Request) => {
     .where("memberId = :mid", { mid: req.session.userId })
     .execute()
 
+    // delete the current user
     await getConnection()
     .createQueryBuilder()
     .delete()

@@ -11,12 +11,14 @@ import { useQueryClient } from 'react-query';
 import { useToast } from '@chakra-ui/toast';
 import { validateInputLogin } from '../utils/validateInputLogin';
 
+// page for logging into the app
 const Login:React.FC<{}> = () => {
 
     const queryClient = useQueryClient()
 
     const toast = useToast()
 
+    // method for logging in
     const login = async (values:any) => {
         const res = axios.post('http://localhost:3001/login', {values}, {
               withCredentials: true,

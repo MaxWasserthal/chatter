@@ -5,6 +5,7 @@ import { getRepository } from 'typeorm';
 import { Room } from '../entities/Room';
 import { MemberRoom } from '../entities/MemberRoom';
 
+// define response structure
 interface ResponseWithError {
     userId: number,
     errorRes: string,
@@ -12,6 +13,7 @@ interface ResponseWithError {
 
 export const register = async (req:Request) => {
 
+    // destructure request body
     const {email, username, password, telephone, description} = req.body.values;
 
     var res:ResponseWithError = {
@@ -23,8 +25,11 @@ export const register = async (req:Request) => {
 
     const memberList = await members.find( { where: {blocked: false} } );
 
+    // check if email is already taken
     const duplicateEmail = await members.findOne({ where: {email: email}})
+    // check if username is already taken
     const duplicateUsername = await members.findOne({ where: {username: username}})
+    // fill and return error response based on duplicate entries
     if(duplicateEmail) {
         res.errorRes = "Email is already taken"
         return res
@@ -33,8 +38,10 @@ export const register = async (req:Request) => {
         return res
     }
 
+    // create a new member
     let member = new Member()
     member.username = username
+    // hash the password
     member.password = await argon2.hash(password)
     member.email = email
     member.telephone = telephone
@@ -44,8 +51,10 @@ export const register = async (req:Request) => {
 
     await member.save()
 
+    // set userId in response object
     res.userId = member.id
 
+    // create direct message rooms for every user that already exists
     memberList.forEach(async(m) => {
         let room = new Room()
         room.title = m.username + " - " + member.username
@@ -54,6 +63,7 @@ export const register = async (req:Request) => {
         room.creator = member as Member
         await room.save()
 
+        // add the member_rooms for the two participants
         let member_room = new MemberRoom()
         member_room.member = member as Member
         member_room.room = room as Room

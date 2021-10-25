@@ -6,6 +6,7 @@ import { Member } from './Member';
 @Entity()
 export class Message extends BaseEntity {
 
+    // messages from users in rooms
     @PrimaryGeneratedColumn()
     id: number;
 

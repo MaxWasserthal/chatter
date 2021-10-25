@@ -23,10 +23,13 @@ interface Room {
     members: Array<string>;
 }
 
+// returns a header for the current room
 export const ChatHeader: React.FC<Props> = ({roomId, username}) => {
 
+    // use custom hook from chakra-ui to open and close modals
     const { isOpen, onOpen, onClose } = useDisclosure()
 
+    // get room info for current room
     const fetchRoomInfo = async () => {
         const {data} = await axios.get<Room>('http://localhost:3001/room-info', {
             withCredentials: true,
@@ -37,8 +40,10 @@ export const ChatHeader: React.FC<Props> = ({roomId, username}) => {
         return data
     }
 
+    // create react-query that fetches the data and caches it
     const { data:roomInfo } = useQuery(["fetchRoomInfo", roomId], fetchRoomInfo)
 
+    // returns title and button to open a modal for editing room info
     return (
         <Flex p={3} borderBottom={"2px solid"} h={"7vh"}>
             <Heading as={"h3"} size={"l"}>{roomInfo?.room_title}</Heading>

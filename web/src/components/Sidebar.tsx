@@ -17,6 +17,7 @@ interface Room {
     dm: boolean;
 }
 
+// returns a sidebar that shows all rooms of a user and the direct messages
 export default function Sidebar() {
 
     const {currRoom, setRoom} = useContext(roomContext);
@@ -35,6 +36,7 @@ export default function Sidebar() {
     const { data:rooms } = useQuery('fetchRooms', fetchRooms)
 
     return (
+        // make rooms and direct messages closeable
         <Accordion
             position={"absolute"} left={0} width={"15%"}
             height={"88vh"}
@@ -43,6 +45,7 @@ export default function Sidebar() {
             overflowY={"scroll"} overflowX={"hidden"}
             allowMultiple allowToggle defaultIndex={[0]}
             >
+            {/* display all normal rooms */}
             <AccordionItem border={"none"}>
                 <h2>
                     <AccordionButton color={colorMode === 'dark' ? "#fff" : "#333"}>
@@ -74,6 +77,8 @@ export default function Sidebar() {
                     </Stack>
                 </AccordionPanel>
             </AccordionItem>
+            
+            {/* display all direct message rooms */}
             <AccordionItem border={"none"}>
                 <h2>
                     <AccordionButton color={colorMode === 'dark' ? "#fff" : "#333"}>

@@ -18,6 +18,7 @@ interface Logtime {
     id: number;
 }
 
+// page to edit user information
 const User:React.FC<{}> = () => {
 
     const me = useIsAuth()
@@ -38,6 +39,7 @@ const User:React.FC<{}> = () => {
             <NavBar/>
             {me ?
             <FormWrapper>
+                {/* create 2 tabs for information and logtimes */}
                 <Tabs>
                 <TabList>
                     <Tab>Info</Tab>
@@ -79,6 +81,7 @@ const User:React.FC<{}> = () => {
                                 {logtimes.map((lt) => {
                                     return (
                                         <Tr key={lt.id}>
+                                            {/* display the logtimes in a formatted way */}
                                             <Td>{new Date(lt.timeStart).toLocaleDateString() + " " + new Date(lt.timeStart).toLocaleTimeString()} </Td>
                                             <Td>{lt.timeEnd ? new Date(lt.timeEnd).toLocaleDateString() + " " + new Date(lt.timeEnd).toLocaleTimeString() : null}</Td>
                                             <Td>{lt.timeEnd ? (Math.abs((new Date(lt.timeEnd).valueOf()) - (new Date(lt.timeStart).valueOf())) / 3600000).toFixed(2) : 0} h</Td>

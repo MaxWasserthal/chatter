@@ -28,19 +28,24 @@ interface Message {
     reactions: Array<String>;
 }
 
+// returns a component with every message of the current room and buttons to react, respond and send own messages
 export default function ChatMessages() {
 
+    // check if user is authenticated
     const me = useIsAuth()
 
+    // scroll new messages into the view
     const setRef = useCallback((node:any) => {
         if(node){
             node.scrollIntoView({ smooth: true })
         }
     }, [])
 
+    // get current roomId from context
     const {currRoom,} = useContext(roomContext)
     const queryClient = useQueryClient()
 
+    // method for getting all messages
     const fetchMessages = async () => {
         const {data} = await axios.get<Message[]>('http://localhost:3001/messages', {
             withCredentials: true,
@@ -51,6 +56,7 @@ export default function ChatMessages() {
         return data
     }
 
+    // method for sending a new message
     const sendMessage = async (message:any) => {
         await axios.post('http://localhost:3001/messages', { message }, {
             withCredentials: true,
@@ -60,24 +66,30 @@ export default function ChatMessages() {
         })
     }
 
+    // react-query to fetch messages and cache them
     const { data:messages } = useQuery(['fetchMessages', currRoom], fetchMessages)
 
+    // use custom hook from chakra-ui to open/close sidebars
     const { onOpen, onClose } = useDisclosure()
     const btnRef = useRef<HTMLButtonElement>(null)
 
+    // define state for sidebar window
     const [open, setOpen] = useState({
         messageId: 0,
         opened: false,
     })
 
+    // define state for modal window
     const [openModal, setOpenModal] = useState({
         messageId: 0,
         opened: false,
     })
 
+    // rerender, when current room changes or messages get updated
     useEffect(() => {
     }, [currRoom, messages])
 
+    // abstract opening and closing methods for modal/sidebar windows
     const opening = (id:number) => {
         onOpen();
         setOpen({messageId: id, opened: true})
@@ -105,6 +117,7 @@ export default function ChatMessages() {
             <Stack px={5} overflowY={"scroll"} h={"63vh"}>
                 {messages ? messages.map((message) => {
                     let message_content = decrypt(message.message_content)
+                    // check if message is from current user -> for different styling
                     let mebool = message.member_username === me!.username
                     return (
                         <Box
@@ -118,6 +131,7 @@ export default function ChatMessages() {
                                 <Text fontSize="xs" lineHeight={"25px"}>{new Date(message.message_createdAt).toLocaleTimeString()}</Text>
                             </Box>
                             <Box p={2} borderRadius={5} color={"#fff"} bg={mebool ? 'teal' : 'grey'}>
+                                {/* split multiline messages to individual text elements */}
                                 {message_content.split("\n").map((line, idx) => {
                                     return (
                                         <Text key={idx}>{line}</Text>
@@ -130,10 +144,12 @@ export default function ChatMessages() {
                                     icon={<Icon as={BsEmojiLaughing}/>}
                                     onClick={() => openingModal(message.message_id)}/>
                                 </Tooltip>
+                                {/* display reactions as emoji */}
                                 {message.reactions ? message.reactions.map((reaction, idx) => {
                                     return (<Button key={idx} fontSize={20} w={10} h={10}>{String.fromCodePoint(parseInt("0x"+reaction))}</Button>)
                                 }) : null }
                             </Flex>
+                            {/* display how many responses to the message there are */}
                             {parseInt(message.responseCount as string) > 0 ?
                                     <Tooltip label={"Respond"} placement={"bottom"} openDelay={500}>
                                         <Button aria-label={"Respond"} display={'flex'}
@@ -154,6 +170,7 @@ export default function ChatMessages() {
                                     <EmojiModalContents messageId={message.message_id} onClose={closingModal}/>
                                 </Modal>
                             : null}
+                            {/* display sidebar with responses */}
                             {open.opened && open.messageId === message.message_id ?
                                 <Drawer isOpen={open.opened} placement={"right"}
                                 finalFocusRef={btnRef}
@@ -165,13 +182,17 @@ export default function ChatMessages() {
                     )
                 }) : null }
             </Stack>
+            {/* form to submit new messages */}
             <Box width={"97%"} mt={8}>
                 <Formik
                     initialValues={{content: ''}}
                     onSubmit={async (values, {resetForm}) => {
                         if(values.content !== '') {
+                            // encrypt message body before sending
                             await sendMessage(encrypt(values.content))
+                            // invalidate cache of current fetched messages
                             await queryClient.invalidateQueries('fetchMessages')
+                            // clear input form after sending
                             resetForm()
                         }
                     }}>

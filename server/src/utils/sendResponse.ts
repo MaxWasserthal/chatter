@@ -12,10 +12,12 @@ export const sendResponse = async (req:Request) => {
     const rooms = getRepository(Room);
     const room = await rooms.findOne({ where: { id: req.query.roomId }})
 
+    // create new message instance
     let message = new Message()
     message.content = req.body.response;
     message.creator = mem as Member;
     message.room = room as Room;
+    // set connection to original message
     message.response = parseInt(req.query.messageId as string);
 
     await message.save()
