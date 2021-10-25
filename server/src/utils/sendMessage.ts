@@ -18,7 +18,7 @@ export const sendMessage = async (req:Request) => {
     const room = await rooms.findOne({ where: { id: roomId }})
 
     let message = new Message()
-    message.content = req.body.message.content as string;
+    message.content = req.body.message as string;
     message.creator = mem as Member;
     message.room = room as Room;
 

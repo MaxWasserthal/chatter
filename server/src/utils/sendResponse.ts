@@ -13,7 +13,7 @@ export const sendResponse = async (req:Request) => {
     const room = await rooms.findOne({ where: { id: req.query.roomId }})
 
     let message = new Message()
-    message.content = req.body.response.content;
+    message.content = req.body.response;
     message.creator = mem as Member;
     message.room = room as Room;
     message.response = parseInt(req.query.messageId as string);

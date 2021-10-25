@@ -1,0 +1,1 @@
+export const room_key = 'blablabla'

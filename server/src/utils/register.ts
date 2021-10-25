@@ -42,9 +42,7 @@ export const register = async (req:Request) => {
     member.blocked = false
     member.verified = false
 
-    member.save().catch(() => {
-        
-    })
+    await member.save()
 
     res.userId = member.id
 

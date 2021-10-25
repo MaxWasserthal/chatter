@@ -62,6 +62,20 @@ const CreateRoom:React.FC<{}> = () => {
                             router.push("/")
                         }
                     }
+                    else if(values.title === '') {
+                        toast({
+                            title: "Enter a title",
+                            status: 'error',
+                            isClosable: true,
+                        });
+                    }
+                    else {
+                        toast({
+                            title: "Select members",
+                            status: 'error',
+                            isClosable: true,
+                        });
+                    }
                 }}
                 >
                 {({isSubmitting}) => (

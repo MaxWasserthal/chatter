@@ -16,6 +16,7 @@ import { EmojiModalContents } from './EmojiModalContents'
 import { ChatHeader } from './ChatHeader'
 import { Tooltip } from '@chakra-ui/tooltip'
 import { useIsAuth } from '../utils/useIsAuth'
+import { decrypt, encrypt } from '../utils/cryptoVals'
 
 interface Message {
     message_id: number;
@@ -103,7 +104,8 @@ export default function ChatMessages() {
             {me ? <ChatHeader roomId={currRoom} username={me.username}/> : null }
             <Stack px={5} overflowY={"scroll"} h={"63vh"}>
                 {messages ? messages.map((message) => {
-                    let mebool = message.member_username === me!.username;
+                    let message_content = decrypt(message.message_content)
+                    let mebool = message.member_username === me!.username
                     return (
                         <Box
                         display={'flex'} flexDirection={'column'}
@@ -116,7 +118,7 @@ export default function ChatMessages() {
                                 <Text fontSize="xs" lineHeight={"25px"}>{new Date(message.message_createdAt).toLocaleTimeString()}</Text>
                             </Box>
                             <Box p={2} borderRadius={5} color={"#fff"} bg={mebool ? 'teal' : 'grey'}>
-                                {message.message_content.split("\n").map((line, idx) => {
+                                {message_content.split("\n").map((line, idx) => {
                                     return (
                                         <Text key={idx}>{line}</Text>
                                     )
@@ -149,7 +151,7 @@ export default function ChatMessages() {
                                 }
                                 {openModal.opened && openModal.messageId === message.message_id ?
                                 <Modal isOpen={openModal.opened} onClose={() => closingModal(message.message_id)}>
-                                    <EmojiModalContents messageId={message.message_id}/>
+                                    <EmojiModalContents messageId={message.message_id} onClose={closingModal}/>
                                 </Modal>
                             : null}
                             {open.opened && open.messageId === message.message_id ?
@@ -168,7 +170,7 @@ export default function ChatMessages() {
                     initialValues={{content: ''}}
                     onSubmit={async (values, {resetForm}) => {
                         if(values.content !== '') {
-                            await sendMessage(values)
+                            await sendMessage(encrypt(values.content))
                             await queryClient.invalidateQueries('fetchMessages')
                             resetForm()
                         }

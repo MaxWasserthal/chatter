@@ -8,9 +8,10 @@ import { useColorMode } from '@chakra-ui/color-mode'
 
 interface Props {
     messageId: number;
+    onClose: (id:number) => void;
 }
 
-export const EmojiModalContents: React.FC<Props> = ({messageId}) => {
+export const EmojiModalContents: React.FC<Props> = ({messageId, onClose}) => {
 
     const { colorMode } = useColorMode()
     const queryClient = useQueryClient()
@@ -21,6 +22,7 @@ export const EmojiModalContents: React.FC<Props> = ({messageId}) => {
         })
         .then(async () => {
             await queryClient.invalidateQueries('fetchMessages')
+            onClose(messageId)
         })
     }
 

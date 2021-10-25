@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from 'react-query'
 import { Box, Flex, Stack } from '@chakra-ui/layout'
 import { Form, Formik } from 'formik'
 import { InputField } from './InputField'
+import { decrypt, encrypt } from '../utils/cryptoVals'
 
 interface Member {
     id: number;
@@ -76,7 +77,7 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                                     <Text fontSize="xs" lineHeight={"25px"}>{new Date(response.createdAt).toLocaleTimeString()}</Text>
                                 </Box>
                                 <Box p={2} borderRadius={5} color={"#fff"} bg={'teal'}>
-                                { response.content.split("\n").map((line, idx) => {
+                                { decrypt(response.content).split("\n").map((line, idx) => {
                                     return (
                                         <Text key={idx}>{line}</Text>
                                     )
@@ -93,7 +94,7 @@ export const DrawerContents: React.FC<Props> = ({messageId, roomId}) => {
                         initialValues={{content: ''}}
                         onSubmit={async (values, {resetForm}) => {
                             if(values.content !== '') {
-                                await sendResponse(values)
+                                await sendResponse(encrypt(values.content))
                                 await queryClient.invalidateQueries('fetchResponses')
                                 await queryClient.invalidateQueries('fetchMessages')
                                 resetForm()
