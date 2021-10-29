@@ -1,8 +1,13 @@
+import { Request } from 'express';
 import { getRepository } from 'typeorm';
 import { Message } from '../entities/Message';
 import { Reaction } from '../entities/Reaction';
 
-export const messages = async (roomId:string) => {
+export const messages = async (req:Request) => {
+
+    const roomId = req.query.roomId
+    const limit = 5
+    const offset = parseInt(req.query.page as string) * limit
 
     const mes = await getRepository(Message)
         .createQueryBuilder("message")
@@ -31,9 +36,13 @@ export const messages = async (roomId:string) => {
         .where("message.room.id = :id", { id: roomId })
         // check if message is not a response
         .andWhere("message.responseId isnull")
-        .orderBy("message.createdAt")
+        .orderBy("message.createdAt", "DESC")
+        .limit(limit)
+        .offset(offset)
         // get raw, because subquery is only returned on raw response
-        .getRawMany();
+        .getRawMany().catch((err) => {
+            return err;
+        })
 
     return mes;
 }

@@ -6,7 +6,7 @@ var router = express.Router();
 
 // gets all messages in room
 router.get("/messages", async (req,res) => {
-    const mess = await messages(req.query.roomId as string)
+    const mess = await messages(req)
     res.send(mess)
 })
 

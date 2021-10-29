@@ -64,7 +64,7 @@ const Login:React.FC<{}> = () => {
                     <Flex mt={5}>
                         <Button type="submit" colorScheme="teal" mt={5} isLoading={isSubmitting} mr={"auto"}>Login</Button>
                         <NextLink href="/register">
-                            <Button colorScheme="teal" mt={5}>No Account? Register here</Button>
+                            <Button colorScheme="teal" mt={5} id={"register"}>No Account? Register here</Button>
                         </NextLink>
                     </Flex>
                 </Form>

@@ -1,7 +1,7 @@
 import { Box, Flex, Stack, Text } from '@chakra-ui/layout'
 import axios from 'axios'
 import React, { useContext, useEffect, useCallback, useRef, useState } from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import { useInfiniteQuery, useQueryClient } from 'react-query'
 import roomContext from '../context/room'
 import { Formik,Form } from 'formik'
 import { Button, IconButton } from '@chakra-ui/button'
@@ -43,6 +43,7 @@ export default function ChatMessages() {
 
     // get current roomId from context
     const {currRoom,} = useContext(roomContext)
+    const [page, setPage] = useState(0)
     const queryClient = useQueryClient()
 
     // method for getting all messages
@@ -51,6 +52,7 @@ export default function ChatMessages() {
             withCredentials: true,
             params: {
                 roomId: currRoom,
+                page: page
             }
         })
         return data
@@ -66,8 +68,15 @@ export default function ChatMessages() {
         })
     }
 
-    // react-query to fetch messages and cache them
-    const { data:messages } = useQuery(['fetchMessages', currRoom], fetchMessages)
+    // react-query to fetch messages incrementally
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(['fetchMessages', currRoom], fetchMessages, {
+        getNextPageParam: () => page,
+        refetchOnWindowFocus: false,
+    })
+
+    if(data) {
+        console.log("pages from page",page, data.pages.flat().reverse().sort((a,b) => a.message_id >> b.message_id).filter((v,i,a)=>a.findIndex(t=>(t.message_id === v.message_id))===i))
+    }
 
     // use custom hook from chakra-ui to open/close sidebars
     const { onOpen, onClose } = useDisclosure()
@@ -87,7 +96,9 @@ export default function ChatMessages() {
 
     // rerender, when current room changes or messages get updated
     useEffect(() => {
-    }, [currRoom, messages])
+        setPage(0)
+        fetchNextPage()
+    }, [currRoom, fetchNextPage])
 
     // abstract opening and closing methods for modal/sidebar windows
     const opening = (id:number) => {
@@ -115,7 +126,8 @@ export default function ChatMessages() {
         position={"absolute"} right={0} width={"85%"}>
             {me ? <ChatHeader roomId={currRoom} username={me.username}/> : null }
             <Stack px={5} overflowY={"scroll"} h={"63vh"}>
-                {messages ? messages.map((message) => {
+                {hasNextPage ? <Button w={"min-content"} mx={"auto"} mt={2} onClick={async () => {setPage(page+1); await fetchNextPage()}} isLoading={isFetchingNextPage} disabled={!hasNextPage || isFetchingNextPage}>Load more</Button> : null}
+                {data ? data.pages.flat().reverse().sort((a,b) => a.message_id >> b.message_id).filter((v,i,a)=>a.findIndex(t=>(t.message_id === v.message_id))===i).map((message, idx) => {
                     let message_content = decrypt(message.message_content)
                     // check if message is from current user -> for different styling
                     let mebool = message.member_username === me!.username
@@ -124,8 +136,8 @@ export default function ChatMessages() {
                         display={'flex'} flexDirection={'column'}
                         alignItems={mebool ? 'flex-end' : 'flex-start'}
                         w={"100%"} pb={2}
-                        key={message.message_id}
-                        ref={message.message_id === messages[messages.length-1].message_id ? setRef : null}>
+                        key={idx}
+                        ref={message.message_id === data.pages.flat()[data.pages.flat().length-1].message_id ? setRef : null}>
                             <Box display={"flex"} pb={1}>
                                 <Text fontSize="s" pr={2} fontWeight={"bold"} lineHeight={"25px"}>{message.member_username}</Text>
                                 <Text fontSize="xs" lineHeight={"25px"}>{new Date(message.message_createdAt).toLocaleTimeString()}</Text>
@@ -179,8 +191,7 @@ export default function ChatMessages() {
                                 </Drawer>
                             : null}
                         </Box>
-                    )
-                }) : null }
+                )}) : null })
             </Stack>
             {/* form to submit new messages */}
             <Box width={"97%"} mt={8}>

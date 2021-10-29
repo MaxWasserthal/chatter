@@ -4,7 +4,7 @@ import { Form, Formik } from 'formik';
 import React from 'react';
 import { InputField } from '../components/InputField';
 import router from 'next/router';
-import axios from 'axios';
+import { RegisterUser } from '../utils/register';
 import { FormWrapper } from '../components/FormWrapper';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@chakra-ui/toast';
@@ -15,22 +15,6 @@ const Register: React.FC<{}> = () => {
 
     const queryClient = useQueryClient()
     const toast = useToast()
-
-    // method to create a new account
-    const register = async (values:any) => {
-        const res = axios.post('http://localhost:3001/register', {values}, {
-              withCredentials: true,
-        })
-        .catch((err) => {
-            toast({
-                title: err.response.data.message,
-                status: 'error',
-                isClosable: true,
-            })
-            return null
-        })
-        return res
-    }
 
     return (
         <FormWrapper>
@@ -45,7 +29,7 @@ const Register: React.FC<{}> = () => {
                             isClosable: true,
                         })
                     } else {
-                        const res = await register(values)
+                        const res = await RegisterUser(values)
                         if(res) {
                             await queryClient.invalidateQueries("fetchMe")
                             router.replace("/")
